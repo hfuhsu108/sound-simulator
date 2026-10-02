@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1E2836">
-<title>聲音的三要素｜國中理化模擬</title>
+<title>聲音｜國中理化模擬</title>
 <!-- Font Awesome 6：唯一允許的外部資源（DEV_SPEC 鐵律 10） -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
@@ -64,8 +64,9 @@ button:active,.chip:active,label.check:active{transform:scale(.96);filter:bright
 /* ═══ 3. 版面：Header / 兩欄（無右欄、無抽屜） / 導覽列 ═══
    兩欄配置（DESIGN_SPEC 第 1 節）：頻率、週期、振幅這些讀數本來就長在波形上，
    搬進右欄卡片反而違反「即時讀數貼在它所描述的圖形元素旁」，所以不設右欄。
-   無抽屜（同節「抽屜的存廢」）：波形是即時串流，沒有播放進度可以重設，
-   也就沒有「重設這一輪」。左欄底部只有一顆「重設全部」，因此也不需要動作卡。 */
+   無抽屜（同節「抽屜的存廢」）：第 1、2 頁的波形是即時串流，沒有播放進度可以重設。
+   第 3 頁有動畫，照規範該有抽屜，但三頁一律不設〔A「一樣不設抽屜」，PROJECT_PLAN §4.6〕；
+   第 3 頁也不給任何播放控制：進頁自動播放、固定速度、改頻率就從頭發〔A 2026-10-02 13:43「整張播放／速度控制卡直接移除」〕。 */
 .app{
   height:100vh;
   height:100dvh;
@@ -169,6 +170,36 @@ main{flex:1;position:relative;display:grid;grid-template-columns:minmax(302px,1f
 .chip{white-space:nowrap;height:40px;padding:0 14px;border-radius:20px;background:var(--c-surface);border:1px solid var(--c-bd-ctl);color:var(--c-text-2);font-size:calc(13px * var(--u));display:flex;align-items:center}
 .chip[aria-pressed="true"]{background:var(--c-primary);border-color:var(--c-primary);color:#fff;font-weight:700}
 
+/* 進階摺疊區：逐字沿用 _shared/template/index.html:115-124（第 3 頁「放入探針」「自動調整探針位置」用） */
+.adv{border-top:1px solid var(--c-bd);margin-top:-4px}
+.adv-head{height:44px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  font-size:calc(13px * var(--u));font-weight:700;color:var(--c-text-3);list-style:none}
+.adv-head::-webkit-details-marker{display:none}
+.adv-head i{font-size:calc(11px * var(--u));color:var(--c-text-3);transition:transform .15s}
+.adv[open] .adv-head i{transform:rotate(180deg)}
+.adv-body{display:flex;flex-direction:column;gap:16px;padding-bottom:2px}
+
+/* ── 第 3 頁：聲速與介質（PROJECT_PLAN §3.5） ──
+   畫布上的版面數字是在 1366×768 調出來的「邏輯 px」，大屏時整張乘 U 放大；
+   疊在畫布上的 HTML（資訊卡、標籤）同樣乘 --u，位置由 medium.layout() 換算 */
+.medium{flex:1;position:relative;min-height:0}
+.medium canvas{position:absolute;inset:0;width:100%;height:100%}
+/* 沒放入探針時「自動調整探針位置」不適用 → disabled 並變灰（DESIGN_SPEC 第 4 節） */
+label.check.off{opacity:.45}
+/* 探針資訊卡：容器與字級沿用 optics-sim 的 .infocard（optics-sim/index.html:282-303）；寬度固定，讀數變動時右緣不跳 */
+.infocard{position:absolute;background:var(--c-surface);border:1px solid var(--c-bd);border-radius:10px;
+  padding:calc(8px * var(--u)) calc(12px * var(--u));display:flex;flex-direction:column;gap:calc(4px * var(--u));
+  pointer-events:none;width:calc(172px * var(--u))}
+.infocard .k{display:flex;align-items:center;gap:6px;font-size:calc(12px * var(--u));font-weight:700;color:var(--c-text-3);white-space:nowrap}
+.infocard .pos{font-size:calc(17px * var(--u));font-weight:700;color:#2A6FDB;white-space:nowrap;line-height:1.2;font-variant-numeric:tabular-nums}
+.infocard .etc{font-size:calc(13px * var(--u));color:var(--c-text-3);white-space:nowrap}
+/* 與主畫面探針同一個紅圈字母：學生一眼對得上「這條波形來自哪支探針」 */
+.pb{width:calc(18px * var(--u));height:calc(18px * var(--u));border-radius:50%;border:2px solid #D64545;color:#B42323;
+  font-size:calc(11.5px * var(--u));font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+/* 與資訊卡同寬、置中兩行：「（340 Hz）」放第二行，單行會超出右側欄 */
+.same-pill{position:absolute;width:calc(172px * var(--u));text-align:center;font-size:calc(12.5px * var(--u));font-weight:700;color:#2A6FDB;
+  background:var(--c-primary-soft);border:1px solid var(--c-primary-soft-bd);border-radius:6px;padding:1px 8px;line-height:1.2;pointer-events:none}
+
 .bottomnav{height:56px;flex:none;display:flex;align-items:center;padding:0 18px;background:var(--c-nav);gap:10px}
 .navtab{white-space:nowrap;flex:none;height:38px;padding:0 18px;border-radius:8px;color:var(--c-nav-idle);font-size:calc(13.5px * var(--u));display:flex;align-items:center}
 .navtab[aria-selected="true"]{background:var(--c-primary);color:#fff;font-weight:700}
@@ -201,6 +232,7 @@ label.check input:checked+.box i{visibility:visible}
 .modal .box{background:var(--c-surface);border-radius:14px;padding:24px 26px;max-width:520px;max-height:80%;overflow-y:auto;user-select:text;-webkit-user-select:text;display:flex;flex-direction:column}
 .modal h3{font-size:calc(17px * var(--u));margin:0 0 10px}
 .modal p{font-size:calc(13.5px * var(--u));color:var(--c-text-2);margin:0 0 10px}
+.modal .help-list{font-size:calc(13.5px * var(--u));color:var(--c-text-2);margin:-4px 0 10px;padding-left:20px}
 
 @media (hover:hover){
   .icon-btn:hover{border-color:var(--c-primary);color:var(--c-primary)}
@@ -230,7 +262,7 @@ label.check input:checked+.box i{visibility:visible}
 
   <header class="topbar">
     <div class="logo">理</div>
-    <div class="title">聲音的三要素</div>
+    <div class="title">聲音</div>
     <div class="actions">
       <button class="icon-btn" id="btnHelp" aria-label="操作說明"><i class="fa-solid fa-circle-question"></i></button>
       <button class="icon-btn" id="btnFull" aria-label="全螢幕"><i class="fa-solid fa-expand"></i></button>
@@ -305,6 +337,40 @@ label.check input:checked+.box i{visibility:visible}
       </div>
      </div>
 
+     <div class="panel-page" data-screen="2" hidden>
+      <!-- ── 卡 1：改變實驗現場的東西——頻率、探針（器材）。介質固定空氣→水，管子上已標，不另佔一列 ── -->
+      <div class="card">
+        <div class="sliderbox">
+          <div class="head"><span class="name">聲源頻率</span><span class="val num-val"><span id="medFreqVal">340</span> Hz</span></div>
+          <!-- 300–680 連續：自動調整會把 B 移到每個頻率各自的同步位置。
+               下限 300：水側 9.5 m 至少要裝得下約 1.9 個水中波長（§3.5 M8） -->
+          <input type="range" id="medFreq" min="300" max="680" step="10" value="340" aria-label="聲源頻率">
+          <div class="minmax"><span>300</span><span>680</span></div>
+        </div>
+        <!-- 進階（§3.5 M16、M27）：一般學生只看到 A、B 已放好並同步，不必管理探針；
+             拿掉探針、關掉自動調整後自己拖，是老師帶的延伸示範 -->
+        <details class="adv">
+          <summary class="adv-head">進階<i class="fa-solid fa-chevron-down"></i></summary>
+          <div class="adv-body">
+            <label class="check"><input type="checkbox" id="medAdd" checked><span class="box"><i class="fa-solid fa-check"></i></span>放入探針</label>
+            <label class="check" id="medAutoLbl"><input type="checkbox" id="medAuto" checked><span class="box"><i class="fa-solid fa-check"></i></span>自動調整探針位置</label>
+          </div>
+        </details>
+      </div>
+      <!-- ── 卡 2：只改畫面。三選一用膠囊而非「顯示 XX」核取方塊（§4.5，使用者接受）；
+           節拍燈與波長尺不設開關，跟著顯示方式走（§3.5 M29） ── -->
+      <div class="card">
+        <div class="field">
+          <span class="name" id="medViewLabel">顯示方式</span>
+          <div class="chips" id="medView" role="group" aria-labelledby="medViewLabel">
+            <button class="chip" data-v="particle" aria-pressed="true">粒子</button>
+            <button class="chip" data-v="wave" aria-pressed="false">疏密</button>
+            <button class="chip" data-v="both" aria-pressed="false">粒子＋疏密</button>
+          </div>
+        </div>
+      </div>
+     </div>
+
       <button class="btn btn-resetall" id="btnResetAll">
         <i class="fa-solid fa-arrow-rotate-left"></i>重設全部
       </button>
@@ -336,6 +402,16 @@ label.check input:checked+.box i{visibility:visible}
           </div>
         </div>
       </div>
+      <!-- 第 3 頁：空氣 → 水。上半主畫面（管子＋探針），下半兩張位移－時間圖，全部畫在同一張畫布 -->
+      <div class="screen" id="screen2">
+        <div class="medium" id="medWrap">
+          <canvas id="medCanvas"></canvas>
+          <!-- 卡內只放 T：f 由「週期相同 → 頻率相同（f）」標籤給，不在卡內重複（§3.5 M21） -->
+          <div class="infocard" id="medCardA" hidden><div class="k"><span class="pb">A</span>空氣</div><div class="pos"></div></div>
+          <div class="infocard" id="medCardB" hidden><div class="k"><span class="pb">B</span>水</div><div class="pos"></div></div>
+          <div class="same-pill" id="medPill" hidden></div>
+        </div>
+      </div>
     </div>
 
     <!-- <900px 才出現：叫出左欄設定面板。無右欄，所以沒有「數據」那一顆 -->
@@ -347,6 +423,7 @@ label.check input:checked+.box i{visibility:visible}
   <nav class="bottomnav" id="nav">
     <button class="navtab" data-screen="0" aria-selected="true">聲音三要素</button>
     <button class="navtab" data-screen="1" aria-selected="false">波形觀測</button>
+    <button class="navtab" data-screen="2" aria-selected="false">聲速與介質</button>
     <span class="navmeta" id="navMeta"></span>
   </nav>
 </div>
@@ -360,7 +437,18 @@ label.check input:checked+.box i{visibility:visible}
     <p><b>綠色那一段是第一個週期</b>。比較不同的音時，看綠色那段有多寬：越窄代表頻率越高、音越高。</p>
     <p>下方「<b>波形觀測</b>」分頁可以用麥克風收真實的聲音。「凍結畫面」讓波形停住方便觀察；
        縱軸不會自動縮放，「放大倍率」調好之後，大聲小聲可以直接比高低。</p>
-    <p><b>重設全部</b> 把樂器、音量、放大倍率、顯示開關通通調回一開始。</p>
+    <!-- 第 3 頁的說明全部集中在這裡，主畫面不放說明文字〔A 2026-10-02 13:43「全部統一收進最上方的 ? 操作說明」〕 -->
+    <p>「<b>聲速與介質</b>」分頁：聲音從空氣傳進水。</p>
+    <ul class="help-list">
+      <li>比較下方兩張圖裡的<b>藍色 T 括號</b>：兩邊的週期 T 一樣長，頻率就相同。</li>
+      <li>切到「<b>疏密</b>」可以觀察兩邊的波長 λ。</li>
+      <li>探針 A、B 預設放在方便比較振動節奏的位置，所以節拍燈會一起閃。</li>
+      <li>「進階」可以關掉「自動調整探針位置」，再左右拖曳探針；位置改變後兩邊不一定同時到波峰，但週期仍然相同。</li>
+      <li>動畫是教學用的慢動作示意；下方圖表的時間是真實時間（毫秒）。</li>
+      <li>粒子的排列與振動幅度都是示意，不代表實際比例。</li>
+      <li>疏密的顏色只表示密部、疏部的位置，不代表振幅大小。</li>
+    </ul>
+    <p><b>重設全部</b> 把樂器、音量、放大倍率、聲源頻率、顯示開關通通調回一開始。</p>
     <p style="font-size:calc(12px * var(--u));color:var(--c-text-3);border-top:1px solid var(--c-bd);padding-top:10px">
        <b>給老師：</b>聲音是真實樂器<b>錄音</b>，波形則是依各樂器實測泛音組成<b>重新合成</b>的。
        兩者分開，是因為直接畫錄音的即時波形會不斷抖動、看不出形狀。合成後同樣的條件
@@ -1057,8 +1145,8 @@ document.getElementById('chkAmp').addEventListener('change', e => {
   state.showAmp = e.target.checked; renderWave();
 });
 
-/* 「重設全部」：把參數打回初始值，含每一個顯示開關。
-   這支模擬沒有播放控制，所以沒有「重設這一輪」（DESIGN_SPEC 第 1 節「兩種重設」）。 */
+/* 「重設全部」：把三頁的參數都打回初始值，含每一個顯示開關。
+   三頁都沒有播放控制，所以沒有「重設這一輪」（DESIGN_SPEC 第 1 節「兩種重設」）；第 3 頁重設後從頭播放。 */
 function resetAll(){
   allNotesOff();
   visNotes.clear();
@@ -1081,6 +1169,7 @@ function resetAll(){
   setInstrument(state.instrument);
   hintKey = '';
   renderGrid(scopes.key, state.showGrid);
+  medium.reset();
   kick();
 }
 document.getElementById('btnResetAll').addEventListener('click', resetAll);
@@ -1300,16 +1389,426 @@ if (navigator.mediaDevices && navigator.mediaDevices.addEventListener){
   });
 }
 
+/* ═══ 5c. 第 3 頁：聲速與介質（裁示 38，定案見 PROJECT_PLAN §3.5） ═══
+   由原型 tmp/medium-mockups/m6-air-water.html 搬進來。整頁包在一個區塊裡：這一頁有自己的 S／F／G
+   與繪圖小工具，和第 1、2 頁的 state／C／fitCanvas 互不相干。
+   本頁唯一的主角是「跨介質頻率不變」，證據順序：
+   主畫面看現象 → 下方兩張共用時間軸的圖量出 T（兩個 T 括號等寬）→ T 相同所以 f 相同 → 切到疏密看波長不同。
+   不放數據表、不放說明文字（M26、M31）：結論要由學生從畫面讀出來，不是由表格直接給答案。
+   反射波整個不畫（M7）：空氣側只有入射波，探針 A 的振動才是單純的正弦。
+   振幅一律教學正規化（M6）：兩側振幅都是 1，只比頻率、波長、聲速——所以這裡不算聲阻抗與透射係數。
+   A、B 同相是靠「探針放在真實的同步位置」做到的，不是把波形平移（M13，見 syncB()）。
+   畫布座標一律是「邏輯 px」＝實際 px ÷ U：版面數字在 1366×768 調出來，大屏上整張等比放大（§6 I5）。 */
+const medium = (() => {
+  /* ── 常數 ── */
+  // 慢動作倍率（固定，不給學生調，§3.5 M30）：動畫 1 秒＝真實 1/400 秒；距離與波長照真實值，只有時間被拉慢。
+  // 選 400 的理由：340 Hz 時粒子每秒來回 0.85 次、節拍燈約 1.2 秒閃一次，看得出節奏；
+  // 波從聲源走到 B 約 6.5 秒、下方圖一次掃描 4.8 秒——再慢（800 倍以上）就要等 13 秒才看到水中的波
+  const SLOW = 400;
+  const V_AIR = 331 + 0.6 * 20;    // 空氣用課本式 v = 331 + 0.6T，取 20 °C
+  const V_WATER = 1482;            // 水取課本常見值
+  // 空氣與水共用同一個比例尺（px/m），水側不另外壓縮——否則學生無法直接比波長（M3）。
+  // 介面放在 4.5 m 只是顯示安排：水側 9.5 m 才裝得下約兩個水中波長
+  const L = 14, XB = 4.5;
+  // 自動調整時探針 A 固定在 1.5 m，B 由 syncB() 依頻率算出同步位置；手動時兩支都可拖曳（範圍見 PROBE_RANGE）
+  const PROBE_A = 1.5, PROBE_B_TARGET = 9.0;
+  const PROBE_RANGE = [[0.3, XB - 0.2], [XB + 0.2, L - 0.2]];
+  const WIN = 0.012;               // 位移－時間圖的時間窗：真實 12 毫秒（340 Hz 約 4 個週期）
+  const AMP_PX = 5;                // 粒子位移（px），小於粒子間距一半，粒子不會互相穿過
+  const GAP_PX = 12;               // 空氣與水用同一個粒子間距：不讓「排得密」變成「傳得快」的暗示
+  const C_T = '#2A6FDB';           // 週期 T 的證據色：兩張圖的 T 括號、資訊卡的 T、「週期相同」標籤同一個顏色
+  const COL = { tracer:'#D64545', axis:'#7A8496', grid:'#D5DAE1', gridMain:'#A6AEBA' };
+  const FILL = { air:'#FDFAF3', water:'#DBEAFE' }, DOT = { air:'#7A8496', water:'#2A6FDB' };
+  // 預設只看粒子（M18）：先看粒子與 A、B 的節奏，再切疏密看波長，不一開場就把所有資訊疊在一起
+  const DEFAULTS = { f:340, view:'particle', addProbe:true, autoProbe:true };
+
+  /* ── state ── */
+  const S = { ...DEFAULTS, t:0, probe:[PROBE_A, PROBE_B_TARGET] };
+  let F = null, G = null, parts = [];
+
+  /* ── 物理模型 ── */
+  // 一維波場：聲源在 x=0、介面在 XB（公尺），t 為動畫秒。前半個週期淡入，波前才不會是一道硬邊
+  function rebuild(){
+    const fv = S.f / SLOW, w = 2 * Math.PI * fv;
+    F = { fv, vv1:V_AIR / SLOW, vv2:V_WATER / SLOW, lam1:V_AIR / S.f, lam2:V_WATER / S.f, delay:[0, 0],
+          g:(tau) => tau > 0 ? Math.sin(w * tau) * Math.min(1, tau * fv * 2) : 0 };
+    if (S.autoProbe) S.probe = [PROBE_A, syncB(S.f)];
+    updDelays();
+  }
+  // 聲波抵達兩支探針的時刻（動畫秒）；探針被拖動時只需重算這個，不必重發聲音
+  function updDelays(){ F.delay = S.probe.map(arriveAt); }
+  // 同步位置：聲波從 A 走到 B 剛好整數個週期 ⇔（A 到介面的空氣波長數）＋（介面到 B 的水中波長數）＝ 整數 n。
+  // 解出 B ＝ 介面 ＋ λ水 ×（n − (介面−A)/λ空氣），在「B 右邊還放得下一把 λ 尺」的範圍內取最接近 9 m 的那個 n。
+  // 空氣→水的透射係數為正，位移波過介面不翻轉，所以不必另補半個波長。
+  function syncB(f){
+    const l1 = V_AIR / f, l2 = V_WATER / f, k = (XB - PROBE_A) / l1;
+    const lo = XB + 0.5, hi = L - l2 - 0.1;
+    let best = PROBE_B_TARGET, bd = Infinity;
+    for (let n = Math.ceil(k); n < k + 40; n++){
+      const b = XB + l2 * (n - k);
+      if (b > hi) break;
+      if (b >= lo && Math.abs(b - PROBE_B_TARGET) < bd){ best = b; bd = Math.abs(b - PROBE_B_TARGET); }
+    }
+    return best;
+  }
+  // 聲波抵達位置 xm 的時刻（動畫秒）
+  function arriveAt(xm){ return xm <= XB ? xm / F.vv1 : XB / F.vv1 + (xm - XB) / F.vv2; }
+  // 位移，兩側振幅都是 1
+  function uAt(xm, t){ return F.g(t - arriveAt(xm)); }
+  function probeU(i, t){ return uAt(S.probe[i], t); }
+  // 探針 i 的第 n 個波峰時刻（動畫秒）：位移 sin(ωτ) 在 τ = (n+¼)/f 達到最大
+  const peakT = (i, n) => F.delay[i] + (n + 0.25) / F.fv;
+  // 到 t 為止最後兩個波峰——週期就從這兩個時刻量出來，不是直接抄設定值
+  function lastPeaks(i, t){
+    const n = Math.floor((t - F.delay[i]) * F.fv - 0.25);
+    return n >= 1 ? [peakT(i, n - 1), peakT(i, n)] : null;
+  }
+  // 節拍燈亮度：每到波峰亮一下，週期的前 18% 內淡出
+  function lampLevel(i, t){
+    const tau = t - F.delay[i]; if (tau < 0.25 / F.fv) return 0;
+    const ph = ((tau * F.fv - 0.25) % 1 + 1) % 1;
+    return ph < 0.18 ? 1 - ph / 0.18 : 0;
+  }
+
+  /* ── 繪圖小工具 ── */
+  const font = (px, w) => `${w || 400} ${px}px ${FONT_STACK}`;
+  function rrect(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+  // 就地標籤：白底小牌，貼在它描述的圖形旁（DESIGN_SPEC 第 1 節「標示就地」）
+  function tag(ctx, text, x, y, o = {}){
+    ctx.font = font(o.size || 12.5, o.weight || 700);
+    const w = ctx.measureText(text).width + 12, h = (o.size || 12.5) + 9;
+    const bx = o.align === 'right' ? x - w : o.align === 'center' ? x - w / 2 : x;
+    rrect(ctx, bx, y - h / 2, w, h, 5);
+    ctx.fillStyle = o.bg || 'rgba(255,255,255,.9)'; ctx.fill();
+    if (o.border){ ctx.strokeStyle = o.border; ctx.lineWidth = 1; ctx.stroke(); }
+    ctx.fillStyle = o.color || '#1C2433'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    ctx.fillText(text, bx + 6, y + 0.5);
+  }
+  // 簡化的喇叭（儀器圖，不是 UI 圖示）：外框＋錐盆，錐盆隨位移前後動
+  function speaker(ctx, x, cy, h, push){
+    ctx.fillStyle = '#5F6B7E'; rrect(ctx, x - 16, cy - h * 0.22, 14, h * 0.44, 3); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x - 2, cy - h * 0.22); ctx.lineTo(x + 8 + push, cy - h * 0.48);
+    ctx.lineTo(x + 8 + push, cy + h * 0.48); ctx.lineTo(x - 2, cy + h * 0.22); ctx.closePath();
+    ctx.fillStyle = '#8A94A3'; ctx.fill(); ctx.strokeStyle = '#5F6B7E'; ctx.lineWidth = 2; ctx.stroke();
+  }
+  // 可重現的亂數（粒子的固定抖動位置，每次重畫一樣）
+  function rng(seed){ let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+
+  /* ── 版面 ── */
+  const $ = (id) => document.getElementById(id);
+  const wrap = $('medWrap'), cv = $('medCanvas');
+  // 所在分頁隱藏中（display:none）量到的是 0，這時不重設畫布，等切過去再量（同 fitScope）
+  function fit(){
+    const r = wrap.getBoundingClientRect();
+    if (!r.width || !r.height) return false;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr * U, 0, 0, dpr * U, 0, 0);
+    G = { ctx, W:r.width / U, H:r.height / U };
+    layout(); render();
+    return true;
+  }
+  function layout(){
+    const { W, H } = G;
+    G.x0 = 56; G.x1 = W - 16; G.ppm = (G.x1 - G.x0) / L; G.xbp = G.x0 + XB * G.ppm;
+    // 管子頂端 56：上方只需放得下「介面」字樣（圓心 top−32）與探針字母、節拍燈（圓心 top−22、半徑 11）。
+    // 數據表拿掉之後（M26）不必再替它讓位，多出來的高度全給下方兩張圖。
+    // 管高取畫布 24%（120～160 px），把空間留給下方兩張圖與兩張資訊卡
+    G.top = 56; G.bot = G.top + Math.max(120, Math.min(160, H * 0.24));
+    G.gTop = G.bot + 44; G.gBot = H - 30; G.gh = (G.gBot - G.gTop - 12) / 2;
+    // 雙圖的時間軸延伸到畫布最左側（M17）；右側 196 px 留給兩張探針資訊卡
+    G.gx0 = 12; G.gx1 = W - 196;
+    G.gy = [G.gTop, G.gTop + G.gh + 12];
+    // 粒子：兩種介質同一個間距、同樣的雜亂程度，只用顏色區分（紅色追蹤粒子畫在最上層，蓋得住底下那顆）
+    parts = []; const r = rng(9), d = GAP_PX;
+    for (let y = G.top + d / 2; y < G.bot; y += d)
+      for (let x = G.x0 + d / 2; x < G.x1; x += d){
+        const px = x + (r() - 0.5) * d * 0.4;
+        parts.push({ x:px, y:y + (r() - 0.5) * d * 0.4, water:px > G.xbp });
+      }
+    // 疊在畫布上的 HTML 用實際 px 定位＝邏輯 px × U。資訊卡對齊各自那張圖的頂端
+    ['medCardA', 'medCardB'].forEach((id, i) => { const c = $(id); c.style.left = (G.gx1 + 12) * U + 'px'; c.style.top = G.gy[i] * U + 'px'; });
+    $('medPill').style.left = (G.gx1 + 12) * U + 'px';
+    cardTxt.fill('');
+  }
+  const pxOf = (i) => G.x0 + S.probe[i] * G.ppm;
+
+  /* ── 繪製 ── */
+  function render(){
+    if (!G || !F) return;
+    G.ctx.clearRect(0, 0, G.W, G.H);
+    drawTube(); drawGraphs(); updateCards();
+  }
+
+  function drawTube(){
+    const { ctx } = G, mid = (G.top + G.bot) / 2, showP = S.view !== 'wave', showW = S.view !== 'particle';
+    ctx.fillStyle = FILL.air; ctx.fillRect(G.x0, G.top, G.xbp - G.x0, G.bot - G.top);
+    ctx.fillStyle = FILL.water; ctx.fillRect(G.xbp, G.top, G.x1 - G.xbp, G.bot - G.top);
+
+    // 疏密帶：依「這一側自己的最大壓縮量」正規化，水側波長長、壓縮量小，不正規化就看不出來
+    if (showW){
+      const h = 0.02, norm = [2 * Math.PI / F.lam1, 2 * Math.PI / F.lam2], cs = [], crests = [];
+      for (let px = G.x0; px <= G.x1; px += 2){
+        const xm = (px - G.x0) / G.ppm, side = xm > XB ? 1 : 0;
+        const c = -(uAt(xm + h, S.t) - uAt(xm - h, S.t)) / (2 * h) / norm[side];
+        cs.push([px, Math.max(-1, Math.min(1, c))]);
+      }
+      const a = S.view === 'wave' ? 1 : 0.55;
+      for (const [px, c] of cs){
+        ctx.fillStyle = c > 0 ? `rgba(30,58,107,${0.5 * a * c})` : `rgba(255,255,255,${0.75 * a * -c})`;
+        ctx.fillRect(px - 1, G.top, 2, G.bot - G.top);
+      }
+      // 密部中心：疏密帶的局部極大值
+      for (let k = 1; k < cs.length - 1; k++)
+        if (cs[k][1] > 0.55 && cs[k][1] >= cs[k - 1][1] && cs[k][1] > cs[k + 1][1] && Math.abs(cs[k][0] - G.xbp) > 3) crests.push(cs[k][0]);
+      ctx.strokeStyle = S.view === 'wave' ? 'rgba(30,58,107,.85)' : 'rgba(30,58,107,.4)'; ctx.lineWidth = S.view === 'wave' ? 2 : 1.5;
+      for (const x of crests){ ctx.beginPath(); ctx.moveTo(x, G.top + 2); ctx.lineTo(x, G.bot - 2); ctx.stroke(); }
+    }
+    // 粒子層
+    if (showP){
+      for (const p of parts){
+        ctx.fillStyle = p.water ? DOT.water : DOT.air;
+        ctx.beginPath(); ctx.arc(p.x + uAt((p.x - G.x0) / G.ppm, S.t) * AMP_PX, p.y, 2.4, 0, 7); ctx.fill();
+      }
+    }
+    ctx.strokeStyle = '#5F6B7E'; ctx.lineWidth = 2; ctx.strokeRect(G.x0, G.top, G.x1 - G.x0, G.bot - G.top);
+    speaker(ctx, G.x0 - 12, mid, G.bot - G.top, uAt(0, S.t) * 4);
+    // 介面
+    ctx.setLineDash([6, 4]); ctx.beginPath(); ctx.moveTo(G.xbp, G.top - 22); ctx.lineTo(G.xbp, G.bot + 6); ctx.stroke(); ctx.setLineDash([]);
+    tag(ctx, '介面', G.xbp, G.top - 32, { size:12.5, align:'center', color:'#445062', bg:'transparent' });
+    tag(ctx, '空氣', G.x0 + 6, G.top + 14, { size:14 });
+    tag(ctx, '水', G.xbp + 8, G.top + 14, { size:14 });
+
+    // 探針：紅色虛線＝追蹤粒子的平衡位置（它只在這條線附近來回，不會被帶走）
+    if (S.addProbe){
+      [0, 1].forEach((i) => {
+        const x = pxOf(i);
+        ctx.strokeStyle = COL.tracer; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(x, G.top - 10); ctx.lineTo(x, G.bot); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = COL.tracer; ctx.beginPath(); ctx.arc(x + probeU(i, S.t) * AMP_PX, mid, 6.5, 0, 7); ctx.fill();
+        badge(x, G.top - 22, i);
+        // 節拍燈不設開關，跟著顯示方式走（M29）：「疏密」時隱藏，讓注意力留在空間上的波長差異。
+        // 燈放在字母左側（B 可拖到最右邊，右側會出界）
+        if (S.view !== 'wave') lamp(x - 32, G.top - 22, lampLevel(i, S.t), 8);
+        // 手動模式：字母兩側加左右小三角，提示可以拖（燈往外讓到 −32，不與左三角重疊）
+        if (!S.autoProbe){
+          ctx.fillStyle = '#B42323';
+          [-1, 1].forEach((s) => { ctx.beginPath(); ctx.moveTo(x + s * 20, G.top - 22); ctx.lineTo(x + s * 14, G.top - 26); ctx.lineTo(x + s * 14, G.top - 18); ctx.closePath(); ctx.fill(); });
+        }
+      });
+    }
+    // 波長尺（M9）：位置固定（左端＝探針位置，長度＝一個波長），不跟著波跑、不忽隱忽現。
+    // 畫面證據：密部線每經過尺的左端一次，右端也剛好有一條密部線——兩端一起亮。
+    // 聲波通過尺的右端之後才出現，出現後就一直留著。探針被拖到尺放不下的地方時，尺的左端夾在該介質範圍內。
+    // 不設開關：有疏密帶才看得出密部對齊尺的兩端，所以只在「疏密」「粒子＋疏密」出現（M19）
+    if (showW){
+      [0, 1].forEach((i) => {
+        const lam = i ? F.lam2 : F.lam1;
+        const m0 = i ? Math.max(XB + 0.05, Math.min(S.probe[1], L - lam - 0.05)) : Math.max(0.1, Math.min(S.probe[0], XB - lam - 0.05));
+        const a = G.x0 + m0 * G.ppm, b = a + lam * G.ppm;
+        if (S.t < arriveAt(m0 + lam)) return;
+        const ph = (S.t - arriveAt(m0)) * F.fv, near = Math.abs(ph - Math.round(ph)) < 0.06; // 密部中心正好在左端
+        const y = G.bot + 16, col = near ? C_T : '#1C2433';
+        ctx.strokeStyle = near ? 'rgba(42,111,219,.8)' : 'rgba(28,36,51,.3)'; ctx.lineWidth = near ? 2 : 1; ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(a, G.top); ctx.lineTo(a, y); ctx.moveTo(b, G.top); ctx.lineTo(b, y); ctx.stroke(); ctx.setLineDash([]);
+        ctx.strokeStyle = col; ctx.lineWidth = near ? 3 : 2; ctx.beginPath();
+        ctx.moveTo(a, y - 6); ctx.lineTo(a, y + 6); ctx.moveTo(a, y); ctx.lineTo(b, y); ctx.moveTo(b, y - 6); ctx.lineTo(b, y + 6); ctx.stroke();
+        tag(ctx, `λ = ${lam.toFixed(2)} m`, (a + b) / 2, y + 15, { size:12.5, align:'center', color:'#1C2433' });
+      });
+    }
+    // 主畫面不放說明文字（探針同步、可拖曳等），全部在頁首「?」的說明彈窗裡（M31）
+  }
+
+  // 探針標記：主畫面與下方資訊卡用同一個紅圈字母
+  function badge(x, y, i){
+    const { ctx } = G;
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = COL.tracer; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y, 11, 0, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#B42323'; ctx.font = font(13, 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(i ? 'B' : 'A', x, y + 0.5); ctx.textAlign = 'left';
+  }
+  // 節拍燈：暗時灰底，亮時黃色＋外圈光暈
+  function lamp(x, y, lv, r){
+    const { ctx } = G;
+    if (lv > 0){ ctx.fillStyle = `rgba(243,211,78,${0.35 * lv})`; ctx.beginPath(); ctx.arc(x, y, r + 6 * lv, 0, 7); ctx.fill(); }
+    ctx.fillStyle = lv > 0 ? `rgb(${Math.round(226 + 17 * lv)},${Math.round(229 - 18 * lv)},${Math.round(234 - 156 * lv)})` : '#E2E5EA';
+    ctx.strokeStyle = lv > 0 ? '#C7A82C' : '#8A93A1'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke();
+  }
+
+  // 下方：兩張位移－時間圖上下疊放，共用同一條時間軸與同一條掃描線（示波器式由左往右掃，M4）
+  function drawGraphs(){
+    const { ctx } = G, Wa = WIN * SLOW, now = S.t, pw = G.gx1 - G.gx0, gap = Wa * 0.04;
+    const sweep0 = Math.floor(now / Wa) * Wa;
+    const xOf = (t) => G.gx0 + ((t % Wa) / Wa) * pw;
+    const visible = (t) => t <= now && t > now - Wa + gap && t >= 0;
+    const gy = G.gy;
+
+    // 每 1 毫秒一條格線，貫穿兩張圖：量相鄰波峰隔了幾格，上下兩張用同一把尺
+    ctx.fillStyle = '#FAFBFC'; gy.forEach((y) => ctx.fillRect(G.gx0, y, pw, G.gh));
+    ctx.lineWidth = 1;
+    for (let k = 0; k <= 12; k++){
+      const x = G.gx0 + k / 12 * pw;
+      ctx.strokeStyle = k % 2 ? COL.grid : COL.gridMain;
+      ctx.beginPath(); ctx.moveTo(x, gy[0]); ctx.lineTo(x, gy[1] + G.gh); ctx.stroke();
+    }
+    ctx.font = font(11.5); ctx.fillStyle = '#67717F'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let k = 0; k <= 12; k += 2) ctx.fillText(String(k), G.gx0 + k / 12 * pw, gy[1] + G.gh + 4);
+    ctx.textAlign = 'left'; ctx.fillText('時間（真實時間，毫秒）', G.gx1 + 16, gy[1] + G.gh + 4);
+
+    [0, 1].forEach((i) => {
+      const y0 = gy[i], mid = y0 + G.gh / 2, amp = G.gh * 0.36;
+      ctx.strokeStyle = COL.axis; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(G.gx0, mid); ctx.lineTo(G.gx1, mid); ctx.stroke();
+      ctx.strokeStyle = '#E2E5EA'; ctx.lineWidth = 1; ctx.strokeRect(G.gx0, y0, pw, G.gh);
+      if (!S.addProbe) return; // 沒有探針就沒有訊號可畫
+      // 曲線：每一個像素直接算當時的位移（解析式），不靠每幀累積，暫停或卡頓都不會漏畫
+      ctx.strokeStyle = COL.tracer; ctx.lineWidth = 2.5; ctx.beginPath();
+      let pen = false;
+      for (let px = 0; px <= pw; px += 1.5){
+        let t = sweep0 + px / pw * Wa;
+        if (t > now) t -= Wa;
+        if (!visible(t)){ pen = false; continue; }
+        const y = mid - probeU(i, t) * amp;
+        pen ? ctx.lineTo(G.gx0 + px, y) : ctx.moveTo(G.gx0 + px, y); pen = true;
+      }
+      ctx.stroke();
+      // 波峰小點＋最近一個完整週期的 T 括號（M5）：同一個時間尺度、同一個顏色、同一種樣式，學生比的是兩個括號一樣寬
+      const n1 = Math.floor((now - F.delay[i]) * F.fv - 0.25), pk = [];
+      for (let n = Math.max(0, n1 - 12); n <= n1; n++){ const t = peakT(i, n); if (visible(t)) pk.push(t); }
+      ctx.fillStyle = '#1C2433';
+      pk.forEach((t) => { ctx.beginPath(); ctx.arc(xOf(t), mid - probeU(i, t) * amp, 3.5, 0, 7); ctx.fill(); });
+      for (let k = pk.length - 1; k >= 1; k--){
+        const xa = xOf(pk[k - 1]), xb = xOf(pk[k]); if (xb <= xa) continue;
+        const by = y0 + 12;
+        ctx.strokeStyle = C_T; ctx.lineWidth = 3; ctx.beginPath();
+        ctx.moveTo(xa, by + 6); ctx.lineTo(xa, by); ctx.lineTo(xb, by); ctx.lineTo(xb, by + 6); ctx.stroke();
+        ctx.setLineDash([2, 3]); ctx.strokeStyle = 'rgba(42,111,219,.45)'; ctx.lineWidth = 1.5; ctx.beginPath();
+        ctx.moveTo(xa, by + 6); ctx.lineTo(xa, mid - probeU(i, pk[k - 1]) * amp); ctx.moveTo(xb, by + 6); ctx.lineTo(xb, mid - probeU(i, pk[k]) * amp); ctx.stroke(); ctx.setLineDash([]);
+        tag(ctx, 'T', (xa + xb) / 2, by, { size:14, align:'center', color:C_T });
+        break;
+      }
+    });
+    if (!S.addProbe){
+      tag(ctx, '勾選「進階」裡的「放入探針」，這裡會畫出探針所在位置的振動', (G.gx0 + G.gx1) / 2, gy[0] + G.gh + 6, { size:13, weight:400, align:'center', color:'#67717F', border:'#E2E5EA' });
+      return;
+    }
+    // 同步掃描線：一條線同時穿過兩張圖＝兩張圖看的是同一時刻（深灰，不搶 T 的藍色）
+    const sx = xOf(now);
+    ctx.strokeStyle = '#445062'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx, gy[0] - 4); ctx.lineTo(sx, gy[1] + G.gh + 2); ctx.stroke();
+  }
+
+  // 探針資訊卡（HTML）：只放 T，單位用毫秒——下方時間軸就是毫秒，可直接對格線（M21）。
+  // T 由最後兩個波峰的時間差量出來，不是抄設定值；兩邊都量到時才出現「週期相同 → 頻率相同（f）」，形成「圖 → T → f」。
+  // 文字沒變就不寫 DOM，避免每幀重排
+  const cardTxt = ['', '', ''];
+  function updateCards(){
+    const pill = $('medPill');
+    let both = S.addProbe, dt = 0;
+    ['medCardA', 'medCardB'].forEach((id, i) => {
+      const c = $(id);
+      c.hidden = !S.addProbe;
+      if (!S.addProbe) return;
+      const lp = lastPeaks(i, S.t);
+      if (!lp) both = false; else dt = (lp[1] - lp[0]) / SLOW;
+      const txt = lp ? `T = ${(dt * 1000).toFixed(2)} ms` : '聲波還沒到';
+      if (txt === cardTxt[i]) return;
+      cardTxt[i] = txt;
+      c.children[1].textContent = txt; c.children[1].className = lp ? 'pos' : 'etc';
+    });
+    pill.hidden = !both;
+    if (both){
+      const txt = `週期相同 → 頻率相同<br>（${Math.round(1 / dt)} Hz）`;
+      if (txt !== cardTxt[2]){ cardTxt[2] = txt; pill.innerHTML = txt; }
+      const yA = G.gy[0] + $('medCardA').offsetHeight / U, yB = G.gy[1];
+      pill.style.top = ((yA + yB) / 2 - pill.offsetHeight / U / 2) * U + 'px';
+    }
+  }
+
+  /* ── 互動（Pointer Events） ── */
+  // 沒有播放控制（M28）：在這一頁就一直播，改頻率就從頭發。
+  // 每個會改變畫面的互動都要呼叫 kick()：同步畫一次，再接著跑動畫迴圈（第 6 節）
+  function press(boxId, attr, val){
+    for (const b of $(boxId).querySelectorAll(`button[${attr}]`)) b.setAttribute('aria-pressed', String(b.getAttribute(attr) === String(val)));
+  }
+  function onPress(boxId, attr, fn){
+    $(boxId).addEventListener('click', (e) => {
+      const b = e.target.closest(`button[${attr}]`); if (!b) return;
+      press(boxId, attr, b.getAttribute(attr)); fn(b.getAttribute(attr)); kick();
+    });
+  }
+  onPress('medView', 'data-v', (v) => { S.view = v; });
+  // 換頻率＝換一個聲源，從頭發（自動模式下 B 也跟著移到新的同步位置）
+  const freq = $('medFreq');
+  function setFreq(v){ S.f = v; freq.value = String(v); refreshFill(freq); $('medFreqVal').textContent = v; S.t = 0; rebuild(); }
+  freq.addEventListener('input', () => { setFreq(+freq.value); kick(); });
+  // 放入探針 ↔ 自動調整探針位置（在「進階」裡，M15、M16）：
+  // 打開「放入探針」時自動調整一律回到開；關掉時自動調整「不適用」→ disabled 並變灰
+  const chkAdd = $('medAdd'), chkAuto = $('medAuto');
+  function syncProbeControls(){ chkAuto.disabled = !S.addProbe; $('medAutoLbl').classList.toggle('off', !S.addProbe); }
+  chkAdd.addEventListener('change', () => {
+    S.addProbe = chkAdd.checked;
+    if (S.addProbe){ chkAuto.checked = true; S.autoProbe = true; S.probe = [PROBE_A, syncB(S.f)]; updDelays(); }
+    syncProbeControls(); kick();
+  });
+  chkAuto.addEventListener('change', () => {
+    S.autoProbe = chkAuto.checked;
+    if (S.autoProbe){ S.probe = [PROBE_A, syncB(S.f)]; updDelays(); } // 關掉時探針留在原地，不跳
+    kick();
+  });
+
+  // 手動模式拖曳探針：抓字母或虛線都可以，只能沿管子左右移、不能跨過介面。
+  // 拖動時只重算抵達時刻，聲音不重發——學生看得到同一段波形在探針移動後如何錯開
+  let drag = -1;
+  const logical = (e) => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / U, (e.clientY - r.top) / U]; };
+  cv.addEventListener('pointerdown', (e) => {
+    if (!G || !S.addProbe || S.autoProbe) return;
+    const [x, y] = logical(e);
+    if (y < G.top - 36 || y > G.bot) return;
+    const i = [0, 1].find((k) => Math.abs(x - pxOf(k)) < 22);
+    if (i === undefined) return;
+    drag = i; cv.setPointerCapture(e.pointerId);
+  });
+  cv.addEventListener('pointermove', (e) => {
+    if (drag < 0) return;
+    const [lo, hi] = PROBE_RANGE[drag];
+    S.probe[drag] = Math.max(lo, Math.min(hi, (logical(e)[0] - G.x0) / G.ppm));
+    updDelays(); kick();
+  });
+  const endDrag = () => { drag = -1; };
+  cv.addEventListener('pointerup', endDrag);
+  cv.addEventListener('pointercancel', endDrag);
+
+  // 重設全部（由共用的 resetAll() 呼叫）：參數與開關全部回初始值，並從頭播放
+  function reset(){
+    Object.assign(S, DEFAULTS);
+    chkAdd.checked = S.addProbe; chkAuto.checked = S.autoProbe; syncProbeControls();
+    press('medView', 'data-v', S.view);
+    setFreq(S.f);
+  }
+  // 動畫一步（由第 6 節的 frame() 呼叫）：在這一頁就一直要下一幀。dt 上限 50 ms，卡頓後不會一次跳太遠
+  function step(dt){
+    S.t += Math.min(dt, 0.05);
+    render();
+    return true;
+  }
+  reset();
+  return { fit, render, step, reset };
+})();
+
 /* ═══ 6. 重畫時機：事件先畫一次，有東西在動才跑動畫迴圈 ═══
    第 1 頁：波形展開／收回的那零點幾秒逐幀畫（裁示 32），到位就停——靜止時同樣的條件永遠畫出
    同樣的形狀，逐幀重畫是純浪費，教室大屏那類低階裝置閒置時 CPU 該是 0。
    第 2 頁：收音中且沒凍結時逐幀畫（麥克風訊號本來就一直在變）。
+   第 3 頁：在這一頁就一直逐幀推進（沒有暫停鈕）；切到別頁就停，時間保留，切回來接著播。
 
    ⚠ **每個會改變畫面的互動都要呼叫 kick()**：它先同步畫一次（不依賴 rAF——背景分頁與部分內嵌
    瀏覽器根本不派送 rAF），再視需要排動畫。 */
 let rafId = 0, lastFrameT = 0;
 function kick(){
-  if (state.screen === 0) renderWave(); else renderMic();
+  if (state.screen === 0) renderWave();
+  else if (state.screen === 1) renderMic();
+  else medium.render();
   if (!rafId) rafId = requestAnimationFrame(frame);
 }
 function frame(t){
@@ -1318,7 +1817,8 @@ function frame(t){
   lastFrameT = t;
   let more = false;
   if (state.screen === 0){ more = stepEnvelopes(dt); renderWave(); }
-  else if (mic.live && !mic.frozen){ renderMic(); more = true; }
+  else if (state.screen === 1){ if (mic.live && !mic.frozen){ renderMic(); more = true; } }
+  else more = medium.step(dt);
   if (more) rafId = requestAnimationFrame(frame);
   else lastFrameT = 0;
 }
@@ -1409,8 +1909,10 @@ function fitAll(){
   applyScale();
   if (fitScope(scopes.key)){ renderGrid(scopes.key, state.showGrid); renderWave(); }
   if (fitScope(scopes.mic)){ renderGrid(scopes.mic, true); renderMic(); }
+  medium.fit();
 }
 for (const sc of Object.values(scopes)) new ResizeObserver(fitAll).observe(document.getElementById(sc.wrap));
+new ResizeObserver(fitAll).observe(document.getElementById('medWrap'));
 function watchDPR(){
   matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
     .addEventListener('change', () => { fitAll(); watchDPR(); }, { once:true });
