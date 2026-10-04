@@ -28,6 +28,7 @@
   --c-ok:#24794C;
   --c-warn:#C62F2F;
   --c-slider-bg:#D3D9E1;
+  --c-off:#A6AEBA;         /* 停用中的步進器端鈕圖示（同 heat-sim） */
 }
 
 /* ═══ 2. base：字體、上下標、觸控（DEV_SPEC 第 3、4、5 節） ═══ */
@@ -215,20 +216,51 @@ label.check.off{opacity:.45}
    加了抽屜之後第 1 頁在 1280×720 也超出 6 px，改成四頁都套用（§3.7 T12 f）——放得下的頁不會有任何差別。
    外圈墊 12px 頁面底色，捲上去的卡片不會從按鈕上方的間隙透出來 */
 .panel.sticky-reset .btn-resetall{position:sticky;bottom:0;z-index:1;box-shadow:0 0 0 12px var(--c-bg)}
-/* 探針資訊卡：**逐字搬 optics-sim/index.html:282-288、298**（大小、顏色、排版完全比照，PROJECT_PLAN §3.8 V1）。
-   唯一改動是拿掉 optics 的 left:14px;bottom:12px——這一頁有兩張卡、各蓋在自己那張圖上，位置由 medium.layout() 給。
-   哪張圖是 A、哪張是 B 改由圖上方的紅圈字母標示，卡片的小標題只寫「週期」，與 optics「小標題＋內容」同一個排法 */
+/* 資訊卡（第 2、3 頁共用）：**逐字搬 optics-sim/index.html:282-288、298**（字級、顏色、排版比照，PROJECT_PLAN §3.8 V1）。
+   兩處改動：① 拿掉 optics 的 left:14px;bottom:12px，位置由各頁的 JS 給 ② 拿掉固定寬 264，寬度依文字
+   〔**A** 2026-10-03「不用那麼寬，依照文字寬度就好」，§3.10 X5〕 */
 .infocard{position:absolute;background:var(--c-surface);
   border:1px solid var(--c-bd);border-radius:10px;padding:10px 12px;
-  display:flex;flex-direction:column;gap:6px;pointer-events:none;
-  width:calc(264px * var(--u))}
+  display:flex;flex-direction:column;gap:6px;pointer-events:none}
 .infocard .g{display:flex;flex-direction:column;gap:1px}
 .infocard .k{font-size:calc(12px * var(--u));font-weight:700;color:var(--c-text-3);white-space:nowrap}
 .infocard .pos{font-size:calc(17px * var(--u));font-weight:700;color:var(--c-text);white-space:nowrap}
 .infocard .etc{display:flex;align-items:center;gap:8px;font-size:calc(13px * var(--u));color:var(--c-text-2);white-space:nowrap}
-/* 「週期相同 → 頻率相同」：放在兩張卡右側、對準兩張圖的交界。置中兩行：「（340 Hz）」放第二行 */
-.same-pill{position:absolute;width:calc(172px * var(--u));text-align:center;font-size:calc(12.5px * var(--u));font-weight:700;color:#2A6FDB;
-  background:var(--c-primary-soft);border:1px solid var(--c-primary-soft-bd);border-radius:6px;padding:1px 8px;line-height:1.2;pointer-events:none}
+/* 數值步進器：**逐字搬 heat-sim/index.html:218-224**（DESIGN_SPEC 第 4 節：−／值／＋ 三格，端鈕 44×44px）。
+   兩處補充：① 中間的值在這裡是按鈕（點了開小鍵盤），要蓋掉端鈕的 44 寬與底色 ② 值格最小寬 78 → 96：
+   「440 Hz」與「22000 Hz」寬度不同，照 78 的話整顆步進器會隨數字長短左右跳 */
+.steprow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.steprow .name{font-size:calc(13px * var(--u));font-weight:700;color:var(--c-text-2);white-space:nowrap;flex:none}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--c-bd-ctl);border-radius:10px;overflow:hidden;flex:none}
+.stepper button{width:44px;height:44px;background:var(--c-bg);color:var(--c-text-2);font-size:14px;display:flex;align-items:center;justify-content:center}
+.stepper button:disabled{color:var(--c-off);cursor:default}
+.stepper .v{min-width:78px;height:44px;display:flex;align-items:center;justify-content:center;font-size:calc(15px * var(--u));font-weight:700;
+  font-variant-numeric:tabular-nums;border-left:1px solid var(--c-bd);border-right:1px solid var(--c-bd)}
+.stepper button.v{width:auto;min-width:calc(96px * var(--u));padding:0 10px;background:var(--c-surface);color:var(--c-text)}
+/* 第 2 頁：第 1 頁琴鍵那一區的同高空白（高度與 .kbd 同一式），資訊卡貼左下（optics 的 left:14px;bottom:12px） */
+.kbd-space{flex:none;height:min(38%,232px);position:relative;border-top:1px solid var(--c-bd)}
+#micCard{left:14px;bottom:12px}
+/* 輸入頻率的小鍵盤：鍵高 56，手指在大屏與 iPad 上都好按 */
+.keypad-box{width:min(320px,90vw)}
+.kp-display{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;border:1px solid var(--c-bd-ctl);border-radius:10px;
+  padding:8px 14px;font-size:calc(28px * var(--u));font-weight:700;font-variant-numeric:tabular-nums;color:var(--c-text)}
+.kp-unit{font-size:calc(16px * var(--u));color:var(--c-text-3)}
+.kp-msg{font-size:calc(13px * var(--u));color:var(--c-text-3);margin:6px 0 10px;min-height:1.5em}
+.kp-msg.bad{color:var(--c-warn);font-weight:700}
+.kp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kp-grid button{height:56px;border:1px solid var(--c-bd-ctl);border-radius:10px;background:var(--c-surface);
+  font-size:calc(20px * var(--u));font-weight:700;color:var(--c-text-2)}
+.kp-actions{display:flex;gap:8px;margin-top:12px}
+.kp-actions .btn{flex:1}
+.btn.primary:disabled{background:var(--c-bg);border-color:var(--c-bd);color:var(--c-bd-ctl);cursor:default}
+/* 可拖動的視覺暗示：**逐字搬 optics-sim/index.html:316-329**（PROJECT_PLAN §3.10 X6）——白底藍框的雙向箭頭膠囊「握把」，
+   貼在場景下緣、握把本身也是拖曳把手。`touch-action:none` 不可省：沒有它，平板上按住握把拖會被瀏覽器當成捲動 */
+.draghint{position:absolute;transform:translate(-50%,0);color:var(--c-primary);
+  font-size:calc(15px * var(--u));pointer-events:auto;touch-action:none;cursor:ew-resize;
+  line-height:1.3;
+  background:var(--c-surface);border:1.5px solid var(--c-primary-soft-bd);
+  border-radius:999px;padding:1px calc(7px * var(--u));
+  box-shadow:0 1px 3px rgba(28,36,51,.18)}
 
 .bottomnav{height:56px;flex:none;display:flex;align-items:center;padding:0 18px;background:var(--c-nav);gap:10px}
 .navtab{white-space:nowrap;flex:none;height:38px;padding:0 18px;border-radius:8px;color:var(--c-nav-idle);font-size:calc(13.5px * var(--u));display:flex;align-items:center}
@@ -268,6 +300,8 @@ label.check input:checked+.box i{visibility:visible}
   .icon-btn:hover,.round-btn:not(:disabled):hover{border-color:var(--c-primary);color:var(--c-primary)}
   .round-btn.primary:not(:disabled):hover{background:var(--c-primary-dark);color:#fff}
   .seg button[aria-pressed="false"]:not(:disabled):hover{color:var(--c-text-2)}
+  .stepper button:not(:disabled):hover{color:var(--c-primary)}
+  .kp-grid button:hover{border-color:var(--c-primary)}
   .chip[aria-pressed="false"]:hover{border-color:var(--c-primary)}
   .navtab[aria-selected="false"]:hover{color:#fff}
 }
@@ -284,7 +318,7 @@ label.check input:checked+.box i{visibility:visible}
     max-height:70%;background:var(--c-bg);border-radius:12px 12px 0 0;padding:12px;
     box-shadow:0 8px 28px rgba(28,36,51,.25)}
   /* 琴鍵在窄螢幕要更高，否則黑鍵高度不足 44px 命中區 */
-  .kbd{height:min(42%,210px)}
+  .kbd,.kbd-space{height:min(42%,210px)}
 }
 </style>
 </head>
@@ -360,11 +394,31 @@ label.check input:checked+.box i{visibility:visible}
           <button data-mode="rx" aria-pressed="true">接收聲音</button>
           <button data-mode="tx" aria-pressed="false">發出聲音</button>
         </div>
-        <!-- 發出模式：線性刻度（W4），上限＝這台裝置取樣率的一半再留 500 Hz，進入發出模式時才知道確切值 -->
-        <div class="sliderbox" id="toneBox" hidden>
-          <div class="head"><span class="name">頻率</span><span class="val num-val"><span id="toneFreqVal">440</span> Hz</span></div>
-          <input type="range" id="toneFreq" min="20" max="23500" step="10" value="440" aria-label="頻率">
-          <div class="minmax"><span>20</span><span id="toneMaxVal">23500</span></div>
+        <!-- 發出模式：頻率用數值步進器（結構與樣式照 heat-sim/index.html:216-223），點中間的數字開小鍵盤輸入 1～22000 Hz；
+             下方是預設頻率（PROJECT_PLAN §3.10 X4、X10、Y3）。上下限到了端鈕 disabled，不是 hidden -->
+        <div class="field" id="toneBox" hidden>
+          <div class="steprow">
+            <span class="name">頻率</span>
+            <div class="stepper" id="toneStep">
+              <button data-d="-1" aria-label="降低頻率"><i class="fa-solid fa-minus"></i></button>
+              <button class="v" id="toneVal" aria-label="輸入頻率">440 Hz</button>
+              <button data-d="1" aria-label="提高頻率"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="chips" id="tonePresets" role="group" aria-label="預設頻率">
+            <button class="chip" data-f="20" aria-pressed="false">20 Hz</button>
+            <button class="chip" data-f="440" aria-pressed="true">440 Hz</button>
+            <button class="chip" data-f="1000" aria-pressed="false">1000 Hz</button>
+            <button class="chip" data-f="10000" aria-pressed="false">10000 Hz</button>
+            <button class="chip" data-f="17000" aria-pressed="false">17000 Hz</button>
+            <button class="chip" data-f="20000" aria-pressed="false">20000 Hz</button>
+          </div>
+        </div>
+        <!-- 發出的音量（X9）：60% 就是加音量控制以前的固定輸出 -->
+        <div class="sliderbox" id="toneVolBox" hidden>
+          <div class="head"><span class="name">音量</span><span class="val num-val"><span id="toneVolVal">60</span> %</span></div>
+          <input type="range" id="toneVol" min="0" max="100" step="1" value="60" aria-label="發出的音量">
+          <div class="minmax"><span>0</span><span>100</span></div>
         </div>
         <div class="sliderbox" id="micGainBox">
           <div class="head"><span class="name">放大倍率</span><span class="val num-val">× <span id="micGainVal">5</span></span></div>
@@ -396,7 +450,7 @@ label.check input:checked+.box i{visibility:visible}
         </details>
       </div>
       <!-- ── 卡 2：只改畫面。三選一用膠囊而非「顯示 XX」核取方塊（§4.5，使用者接受）；
-           節拍燈與波長尺不設開關，跟著顯示方式走（§3.5 M29） ── -->
+           波長尺不設開關，跟著顯示方式走（§3.5 M29；節拍燈已於 §3.10 X1 移除） ── -->
       <div class="card">
         <div class="field">
           <span class="name" id="medViewLabel">顯示方式</span>
@@ -406,7 +460,7 @@ label.check input:checked+.box i{visibility:visible}
             <button class="chip" data-v="both" aria-pressed="false">粒子＋疏密</button>
           </div>
         </div>
-        <!-- 圖上的週期讀數卡可以關掉（§3.8 V2），開關樣式同 optics-sim 卡 2 的「顯示說明」 -->
+        <!-- 圖上的資訊卡（頻率、週期、波長）可以關掉（§3.8 V2），開關樣式同 optics-sim 卡 2 的「顯示說明」 -->
         <label class="check"><input type="checkbox" id="medInfo" checked><span class="box"><i class="fa-solid fa-check"></i></span>顯示資訊卡</label>
       </div>
      </div>
@@ -458,7 +512,7 @@ label.check input:checked+.box i{visibility:visible}
           </div>
         </details>
       </div>
-      <!-- ── 卡 2：只改畫面，與第 3 頁同一組（§4.5、§3.6 P21）；預設疏密，看得出波前傳到哪（§3.7 T3）；節拍燈跟著顯示方式走（R5） ── -->
+      <!-- ── 卡 2：只改畫面，與第 3 頁同一組（§4.5、§3.6 P21）；預設疏密，看得出波前傳到哪（§3.7 T3） ── -->
       <div class="card">
         <div class="field">
           <span class="name" id="propViewLabel">顯示方式</span>
@@ -501,20 +555,29 @@ label.check input:checked+.box i{visibility:visible}
             <p>請改用這個模擬的<b>線上網址</b>開啟。第 1 頁「聲音三要素」不受影響，照常可用。</p>
           </div>
         </div>
+        <!-- 第 1 頁琴鍵的位置留白（同高，兩頁的波形區一樣大、可直接對照），左下角放資訊卡（§3.10 X3） -->
+        <div class="kbd-space">
+          <div class="infocard" id="micCard">
+            <div class="g"><div class="k" id="micCardFk">最強頻率</div><div class="pos" id="micCardF">—</div></div>
+            <div class="g"><div class="k">音量</div><div class="pos" id="micCardV">—</div></div>
+          </div>
+        </div>
       </div>
       <!-- 第 3 頁：空氣 → 水。上半主畫面（管子＋探針），下半兩張位移－時間圖，全部畫在同一張畫布 -->
       <div class="screen" id="screen2">
         <div class="medium" id="medWrap">
           <canvas id="medCanvas"></canvas>
-          <!-- 卡內只放 T：f 由「週期相同 → 頻率相同（f）」標籤給，不在卡內重複（§3.5 M21） -->
-          <div class="infocard" id="medCardA" hidden><div class="g"><div class="k">週期</div><div class="pos"></div></div></div>
-          <div class="infocard" id="medCardB" hidden><div class="g"><div class="k">週期</div><div class="pos"></div></div></div>
-          <div class="same-pill" id="medPill" hidden></div>
+          <!-- 兩行：「f＋T」與「λ」，不加小標題（§3.10 X7、X12）；「週期相同 → 頻率相同」已拿掉——兩張卡直接寫出 f，那句變重複 -->
+          <div class="infocard" id="medCardA" hidden><div class="g"><div class="pos"></div><div class="pos"></div></div></div>
+          <div class="infocard" id="medCardB" hidden><div class="g"><div class="pos"></div><div class="pos"></div></div></div>
+          <div class="draghint" id="medHintA" hidden><i class="fa-solid fa-arrows-left-right"></i></div>
+          <div class="draghint" id="medHintB" hidden><i class="fa-solid fa-arrows-left-right"></i></div>
         </div>
       </div>
       <!-- 第 4 頁：開放空間。聲源在左、脈衝以圓弧向外擴散；探針 A 與它收到的小波形都畫在同一張畫布 -->
       <div class="screen" id="screen3">
-        <div class="medium" id="propWrap"><canvas id="propCanvas"></canvas></div>
+        <div class="medium" id="propWrap"><canvas id="propCanvas"></canvas>
+          <div class="draghint" id="propHint"><i class="fa-solid fa-arrows-left-right"></i></div></div>
       </div>
     </div>
 
@@ -548,11 +611,31 @@ label.check input:checked+.box i{visibility:visible}
 
   <nav class="bottomnav" id="nav">
     <button class="navtab" data-screen="0" aria-selected="true">聲音三要素</button>
-    <button class="navtab" data-screen="1" aria-selected="false">波形觀察</button>
+    <button class="navtab" data-screen="1" aria-selected="false">聲波實驗室</button>
     <button class="navtab" data-screen="2" aria-selected="false">聲音的透射</button>
     <button class="navtab" data-screen="3" aria-selected="false">聲音的傳播</button>
     <span class="navmeta" id="navMeta"></span>
   </nav>
+</div>
+
+<!-- 輸入頻率的小鍵盤（§3.10 X4）：自己做，不叫出系統鍵盤——iPad 與大屏的系統鍵盤會蓋掉半個畫面，而且會跳出英文字母 -->
+<div class="modal" id="keypad" role="dialog" aria-modal="true" aria-labelledby="keypadTitle">
+  <div class="box keypad-box">
+    <h3 id="keypadTitle">輸入頻率</h3>
+    <div class="kp-display"><span id="kpNum">440</span><span class="kp-unit">Hz</span></div>
+    <div class="kp-msg" id="kpMsg">可輸入 1～22000</div>
+    <div class="kp-grid" id="kpGrid">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button data-k="clear">清除</button><button data-k="0">0</button>
+      <button data-k="back" aria-label="退格"><i class="fa-solid fa-delete-left"></i></button>
+    </div>
+    <div class="kp-actions">
+      <button class="btn" id="kpCancel">取消</button>
+      <button class="btn primary" id="kpOk">確定</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal" id="helpModal">
@@ -567,15 +650,20 @@ label.check input:checked+.box i{visibility:visible}
     <p>最下方的播放控制在這一頁用不到（灰色），琴鍵按下就會發聲。</p>
     </div>
     <div class="help-sec" data-screen="1">
-    <p>「<b>波形觀察</b>」分頁用麥克風收真實的聲音。按最下方的 <b>▶</b> 開始收音（第一次會詢問麥克風權限）；
+    <p>「<b>聲波實驗室</b>」分頁用麥克風收真實的聲音。按最下方的 <b>▶</b> 開始收音（第一次會詢問麥克風權限）；
        收音中按 <b>⏸</b> 讓波形停住方便觀察，再按 ▶ 恢復。切到別的分頁時麥克風會自動關閉。</p>
     <p>縱軸不會自動縮放，「放大倍率」調好之後，大聲小聲可以直接比高低。
        這一頁是真實時間的波形，所以「重設這一輪」與「播放速度」不適用（灰色）。</p>
-    <p>切到「<b>發出聲音</b>」可以讓喇叭發出單一頻率的正弦波：拉「頻率」滑桿選頻率，按 <b>▶</b> 發聲、<b>⏸</b> 停止。</p>
+    <p>左下角的資訊卡寫出<b>最強頻率</b>與<b>音量</b>：</p>
     <ul class="help-list">
-      <li>發出聲音時，圖上畫的是<b>發出的理想正弦波</b>，不是麥克風收到的聲音。</li>
+      <li>最強頻率是收到的聲音裡最強的那個頻率成分，所以寫「約」。純音、音叉很準；人聲與樂器的最強成分常是泛音，會估成高一倍以上，所以它不能直接當成音高。</li>
+      <li>音量的 dB 是<b>相對值</b>：以電腦能收到的最大聲為 0 dB，越小聲越負（例如 −35 dB）。這不是分貝計量到的「說話約 60 dB」那種數字，兩者不能直接比。</li>
+    </ul>
+    <p>切到「<b>發出聲音</b>」可以讓喇叭發出單一頻率的正弦波：用 <b>−／＋</b> 調頻率（按住會連續變），或點中間的數字用小鍵盤輸入 1～22000 Hz，也可以點下方的預設頻率；按 <b>▶</b> 發聲、<b>⏸</b> 停止。</p>
+    <ul class="help-list">
+      <li>發出聲音時，圖上畫的是<b>發出的理想正弦波</b>，不是麥克風收到的聲音：波形的高度跟著「音量」變（0% 是一條平線），週期只由頻率決定，調音量不會改變。</li>
       <li>頻率越高，20 ms 裡的週期越多；幾千 Hz 以上波形會密到糊成一片，這就是一瞬間振動了幾百次的樣子。</li>
-      <li>20 kHz 以上是<b>超聲波</b>，人耳聽不到。瀏覽器最高只能發到裝置取樣率的一半（約 22～24 kHz），而且多數筆電、平板的喇叭在這麼高的頻率幾乎發不出聲音，所以聽不到不代表喇叭真的發出了超聲波。</li>
+      <li>20 kHz 以上是<b>超聲波</b>，人耳聽不到。這一頁最高只到 22000 Hz（瀏覽器發不出更高的頻率），而且 20 kHz 以上瀏覽器自己的輸出就會變弱、多數筆電與平板的喇叭也幾乎發不出聲音，所以聽不到不代表喇叭真的發出了超聲波。</li>
       <li>能聽到的最高頻率因人而異，年紀越大通常越低；15～20 kHz 時，有些人聽得到、有些人聽不到。</li>
     </ul>
     </div>
@@ -583,9 +671,9 @@ label.check input:checked+.box i{visibility:visible}
     <div class="help-sec" data-screen="2">
     <p>「<b>聲音的透射</b>」分頁：聲音從空氣傳進水。</p>
     <ul class="help-list">
-      <li>比較下方兩張圖裡的<b>藍色 T 括號</b>：兩邊的週期 T 一樣長，頻率就相同。圖上的週期讀數卡可以用左欄的「顯示資訊卡」關掉。</li>
+      <li>比較下方兩張圖裡的<b>藍色 T 括號</b>：兩邊的週期 T 一樣長，頻率就相同。圖右端的資訊卡寫出量到的頻率 f、週期 T 與波長 λ，可以用左欄的「顯示資訊卡」關掉。</li>
       <li>切到「<b>疏密</b>」可以觀察兩邊的波長 λ。</li>
-      <li>探針 A、B 預設放在方便比較振動節奏的位置，所以節拍燈會一起閃。</li>
+      <li>探針 A、B 預設放在方便比較振動節奏的位置，所以兩顆紅色粒子會一起到最右邊、一起到最左邊。</li>
       <li>「進階」可以關掉「自動調整探針位置」，再左右拖曳探針；位置改變後兩邊不一定同時到波峰，但週期仍然相同。</li>
       <li>動畫是教學用的慢動作示意；下方圖表的時間是真實時間（毫秒）。</li>
       <li>最下方的 <b>▶／⏸</b> 播放或暫停；<b>↺</b>「重設這一輪」讓聲波回到剛從聲源發出、停在開頭，設定都不變，再按 ▶ 開始。「播放速度」只改動畫的快慢，不改頻率、聲速與波長。</li>
@@ -600,7 +688,7 @@ label.check input:checked+.box i{visibility:visible}
       <li>改變任何條件（頻率、音量、介質、氣溫、空氣狀態），聲源都會重新開始發聲。下方的圖從那一刻開始畫：開頭那段平線越短，代表聲波越早到達探針。時間軸沒有標數字，因為氣溫的影響在動畫中放大了。</li>
       <li>比較到達時間：調好條件後按 <b>↺</b>「重設這一輪」（聲波回到開頭並停住，設定都不變），再按 <b>▶</b> 觀察。<b>⏸</b> 可以停在某一刻講解。</li>
       <li>「播放速度」只改動畫的快慢，所有條件一起變快或變慢；聲速數字、頻率、距離造成的振幅變化都不受影響。</li>
-      <li>「音量」在「進階」裡，改變的是聲源振動的幅度，這一頁不會發出聲音。</li>
+      <li>「音量」在「進階」裡，改變的是聲源振動的幅度，這一頁不會發出聲音。音量調到 0 時聲源不振動，所以畫面上沒有疏密、下方的圖也是平線。</li>
       <li>粒子與疏密的畫法和「聲音的透射」分頁相同：三種介質的粒子間距一樣，只用顏色區分；疏密的顏色只表示位置，不代表振幅大小。</li>
       <li>本模擬以空氣、水與鋼鐵作為代表材料。常見材料中，聲音通常在固體較快、液體次之、氣體較慢，但實際聲速仍與材料性質有關。</li>
       <li>本模擬只提供空氣氣溫的控制；水與鋼鐵使用固定代表聲速（約 1482 m/s、5200 m/s）。這不代表它們的聲速完全不受溫度影響。</li>
@@ -612,7 +700,7 @@ label.check input:checked+.box i{visibility:visible}
       <li>真空中聲源仍然在振動，但沒有介質可以傳遞，聲音傳不出去。</li>
     </ul>
     </div>
-    <p><b>重設全部</b> 把樂器、音量、放大倍率、接收／發出聲音與發出的頻率、聲源頻率、介質、氣溫、空氣狀態、探針位置、顯示開關、播放速度通通調回一開始；
+    <p><b>重設全部</b> 把樂器、音量、放大倍率、接收／發出聲音與發出的頻率和音量、聲源頻率、介質、氣溫、空氣狀態、探針位置、顯示開關、播放速度通通調回一開始；
        最下方的 ↺「重設這一輪」則只讓動畫回到開頭，設定都不變。</p>
     <p class="help-sec" data-screen="0" style="font-size:calc(12px * var(--u));color:var(--c-text-3);border-top:1px solid var(--c-bd);padding-top:10px">
        <b>給老師：</b>聲音是真實樂器<b>錄音</b>，波形則是依各樂器實測泛音組成<b>重新合成</b>的。
@@ -901,6 +989,7 @@ function allNotesOff(){
   for (const midi of [...voices.keys()]) noteOff(midi);
   for (const el of document.querySelectorAll('.key[data-on="true"]')) el.dataset.on = 'false';
   pointerNotes.clear();
+  kbdHeld.clear();
   for (const vn of visNotes.values()) vn.target = 0;
   kick();
 }
@@ -1269,6 +1358,7 @@ function releasePointer(e){
   const midi = pointerNotes.get(e.pointerId);
   if (midi === undefined) return;
   pointerNotes.delete(e.pointerId);
+  if (kbdHeld.has(midi)){ kick(); return; }   // 鍵盤還按著這個鍵：留給 keyup 關
   noteOff(midi);
   // 同一個鍵可能被另一指按著，沒有其他指按它才熄燈、才收回波形
   if (![...pointerNotes.values()].includes(midi)){
@@ -1280,6 +1370,38 @@ function releasePointer(e){
 }
 kbdEl.addEventListener('pointerup', releasePointer);
 kbdEl.addEventListener('pointercancel', releasePointer);
+
+/* 鍵盤彈奏（§3.11 Z5）：Tab 選到琴鍵後，Space／Enter 按住發聲、放開停。按住時鍵盤會自動連發，用 e.repeat 擋掉。
+   失焦（Tab 走開）就放開那個鍵；視窗失焦、切分頁走既有的 allNotesOff，那裡會清掉 kbdHeld */
+const kbdHeld = new Set();
+const isPlayKey = (e) => e.key === ' ' || e.key === 'Enter';
+function releaseKbd(el){
+  const midi = +el.dataset.midi;
+  if (!kbdHeld.delete(midi)) return;
+  // 同一個鍵同時被手指按著時，聲音與燈留給手指那邊放開時再關
+  if ([...pointerNotes.values()].includes(midi)) return;
+  noteOff(midi);
+  el.dataset.on = 'false';
+  visOff(midi);
+  kick();
+}
+kbdEl.addEventListener('keydown', e => {
+  const el = keyFromEvent(e); if (!el || !isPlayKey(e)) return;
+  e.preventDefault();
+  const midi = +el.dataset.midi;
+  if (e.repeat || kbdHeld.has(midi)) return;
+  kbdHeld.add(midi);
+  el.dataset.on = 'true';
+  noteOn(midi);
+  visOn(midi);
+  kick();
+});
+kbdEl.addEventListener('keyup', e => {
+  const el = keyFromEvent(e); if (!el || !isPlayKey(e)) return;
+  e.preventDefault();
+  releaseKbd(el);
+});
+kbdEl.addEventListener('focusout', e => { const el = keyFromEvent(e); if (el) releaseKbd(el); });
 // 指標在捕獲期間離開視窗（例如滑到瀏覽器外放開）時的保險
 window.addEventListener('blur', allNotesOff);
 
@@ -1332,6 +1454,8 @@ function resetAll(){
   mic.frozen = false; mic.ref = null;
   // 第 2 頁回到「接收聲音」、440 Hz；正在發聲就停（模式是設定，發聲跟著模式走）
   setToneFreq(TONE_DEFAULT);
+  setToneVol(TONE_VOL_DEFAULT);
+  kpClose();
   setMicMode('rx');
   syncMicUI();
   setInstrument(state.instrument);
@@ -1443,8 +1567,10 @@ function stopMic(){
   mic.stream = mic.src = mic.analyser = mic.buf = mic.frame = mic.ref = null;
   mic.live = mic.frozen = false;
   mic.silentSince = 0;
+  mic.est = null;
   syncMicUI();
   idleMicHint();
+  updateMicCard();
   renderMic();
 }
 // 沒在收音也沒在發聲時的讀數列。發出模式不需要麥克風，所以不受 secure context 限制
@@ -1517,6 +1643,39 @@ function captureMic(){
   const s = lockStart(buf, W);
   mic.frame = buf.slice(s, s + W);
   if (rms > MIC_QUIET_RMS) mic.ref = mic.frame;
+  // 資訊卡的最強頻率與音量（§3.10 X8、X11，§3.11 Z3 改名）：每 0.25 秒更新一次，逐幀更新數字會一直跳、讀不出來
+  if (now - (mic.estT || 0) > 250){
+    mic.estT = now;
+    mic.est = { db:20 * Math.log10(Math.max(rms, 1e-9)), f:rms > MIC_QUIET_RMS ? peakFreq() : null };
+    updateMicCard();
+  }
+}
+/* 最強頻率＝頻譜裡最強的那一格（不是音高，所以卡片不叫「接收頻率」，§3.11 Z3），再用拋物線內插（48 kHz、FFT 8192 時一格約 5.9 Hz，內插後在 1 Hz 內）。
+   純音、音叉、本頁自己發的正弦波會很準；人聲與樂器的最強成分有時是泛音，會估成高一倍以上——所以卡片寫「約」（X8） */
+function peakFreq(){
+  const an = mic.analyser, n = an.frequencyBinCount;
+  if (!mic.spec || mic.spec.length !== n) mic.spec = new Float32Array(n);
+  an.getFloatFrequencyData(mic.spec);
+  const hz = audioCtx.sampleRate / an.fftSize, lo = Math.max(1, Math.ceil(20 / hz));
+  let k = lo;
+  for (let i = lo; i < n - 1; i++) if (mic.spec[i] > mic.spec[k]) k = i;
+  const a = mic.spec[k - 1], b = mic.spec[k], c = mic.spec[k + 1], den = a - 2 * b + c;
+  return (k + (den ? 0.5 * (a - c) / den : 0)) * hz;
+}
+/* 左下資訊卡（X3）：接收模式＝估計的最強頻率＋相對 dB；發出模式＝設定的播放頻率＋音量 %。
+   dB 以數位滿格為 0、越小聲越負（X11），不是分貝計的讀數，所以一律附「（相對）」 */
+function updateMicCard(){
+  const fk = document.getElementById('micCardFk'), fv = document.getElementById('micCardF'), vv = document.getElementById('micCardV');
+  if (tone.mode === 'tx'){
+    fk.textContent = '播放頻率';
+    fv.textContent = `${tone.f} Hz`;
+    vv.textContent = `${tone.vol} %`;
+    return;
+  }
+  fk.textContent = '最強頻率';
+  const e = mic.live ? mic.est : null;     // 凍結時 captureMic 不跑，卡片停在凍結那一刻的值
+  fv.textContent = e && e.f ? `約 ${Math.round(e.f)} Hz` : '—';
+  vv.textContent = e && e.db > -100 ? `${String(Math.round(e.db)).replace('-', '−')} dB（相對）` : '—';
 }
 
 function renderMic(){
@@ -1549,30 +1708,37 @@ document.getElementById('micGainSlider').addEventListener('input', e => {
 /* ── 發出聲音：可調頻率的正弦波（PROJECT_PLAN §3.9）──
    下方的圖畫的是**發出的理想正弦波**，不經過麥克風（W2）：一定看得到，但不是量測結果。
    發聲做法同第 1 頁的音叉（oscillator＋增益斜坡），但不經過第 1 頁的音量與 compressor——那是另一頁的設定。
-   頻率上限是取樣率的一半（奈奎斯特頻率）：瀏覽器發不出更高的音。再留 500 Hz，太貼近上限時 oscillator 會失真。 */
-const TONE_PEAK = 0.25;          // ≈ 第 1 頁音叉在預設音量 60% 時的輸出；高頻長音聽久不舒服，不給調大
-const TONE_DRAW = 0.8;           // 圖上正弦波的振幅（縱軸 ±1.0），只是示意大小
-const TONE_DEFAULT = 440;
-const tone = { mode:'rx', f:TONE_DEFAULT, osc:null, out:null };
-const toneSlider = document.getElementById('toneFreq');
-function toneMax(){ return audioCtx ? Math.floor((audioCtx.sampleRate / 2 - 500) / 10) * 10 : 23500; }
-function syncToneMax(){
-  const max = toneMax();
-  toneSlider.max = String(max);
-  document.getElementById('toneMaxVal').textContent = String(max);
-  setToneFreq(Math.min(tone.f, max));
-}
+   頻率 1～22000 Hz（§3.10 X4，取代 W1「到裝置上限」）：48 kHz 裝置上限約 24 kHz、44.1 kHz 約 22 kHz，
+   22000 兩種都在範圍內；20 kHz 以上瀏覽器自己的輸出就開始變弱（archive 原 §7 11:39 節的量測）。 */
+const TONE_MIN = 1, TONE_MAX = 22000;
+const TONE_FULL = 0.25 / 0.6;    // 音量 100% 的輸出：60% 正好是加音量控制以前的固定值 0.25（≈ 第 1 頁音叉在預設音量時）
+const TONE_DRAW = 0.8;           // 音量 100% 時圖上正弦波的振幅（縱軸 ±1.0）；高度跟著音量、週期只跟頻率（§3.11 Z1，取代 W9 的固定高度）
+const TONE_DEFAULT = 440, TONE_VOL_DEFAULT = 60;
+const tone = { mode:'rx', f:TONE_DEFAULT, vol:TONE_VOL_DEFAULT, osc:null, out:null };
+// 步進量依數值大小（X10）：<100 ±1、<1000 ±10、<10000 ±100、其餘 ±1000。往下按時看「下一個數」落在哪一段，
+// 1000 按 − 才會到 990 而不是 900
+function toneStepOf(f, dir){ const x = dir > 0 ? f : f - 1; return x < 100 ? 1 : x < 1000 ? 10 : x < 10000 ? 100 : 1000; }
 function setToneFreq(f){
-  tone.f = f;
-  toneSlider.value = String(f);
-  refreshFill(toneSlider);
-  document.getElementById('toneFreqVal').textContent = String(f);
+  tone.f = Math.max(TONE_MIN, Math.min(TONE_MAX, Math.round(f)));
+  document.getElementById('toneVal').textContent = tone.f + ' Hz';
+  const st = document.getElementById('toneStep');
+  st.querySelector('[data-d="-1"]').disabled = tone.f <= TONE_MIN;
+  st.querySelector('[data-d="1"]').disabled = tone.f >= TONE_MAX;
+  for (const b of document.querySelectorAll('#tonePresets .chip')) b.setAttribute('aria-pressed', String(+b.dataset.f === tone.f));
+  updateMicCard();
   // 發聲中改頻率用 10 ms 的平滑過渡，直接跳值會「咔」一聲
-  if (tone.osc) tone.osc.frequency.setTargetAtTime(f, audioCtx.currentTime, 0.01);
+  if (tone.osc) tone.osc.frequency.setTargetAtTime(tone.f, audioCtx.currentTime, 0.01);
+}
+function setToneVol(v){
+  tone.vol = v;
+  const s = document.getElementById('toneVol');
+  s.value = String(v); refreshFill(s);
+  document.getElementById('toneVolVal').textContent = String(v);
+  updateMicCard();
+  if (tone.osc) tone.out.gain.setTargetAtTime(TONE_FULL * v / 100, audioCtx.currentTime, 0.02);
 }
 function startTone(){
   if (tone.osc || !ensureAudio()) return;
-  syncToneMax();
   const t0 = audioCtx.currentTime;
   tone.out = audioCtx.createGain();
   tone.out.connect(audioCtx.destination);
@@ -1580,7 +1746,7 @@ function startTone(){
   tone.osc.type = 'sine';
   tone.osc.frequency.value = tone.f;
   tone.out.gain.setValueAtTime(0, t0);
-  tone.out.gain.linearRampToValueAtTime(TONE_PEAK, t0 + 0.03);
+  tone.out.gain.linearRampToValueAtTime(TONE_FULL * tone.vol / 100, t0 + 0.03);
   tone.osc.connect(tone.out);
   tone.osc.start(t0);
 }
@@ -1608,27 +1774,91 @@ function renderTone(){
   ctx.beginPath();
   for (let i = 0; i <= n; i++){
     const x = L + (R - L) * (i / n);
-    const y = midY - Math.sin(2 * Math.PI * tone.f * (WINDOW_MS / 1000) * (i / n)) * TONE_DRAW * halfH;
+    const y = midY - Math.sin(2 * Math.PI * tone.f * (WINDOW_MS / 1000) * (i / n)) * TONE_DRAW * tone.vol / 100 * halfH;
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
 }
-toneSlider.addEventListener('input', () => { setToneFreq(+toneSlider.value); kick(); });
+// 步進器端鈕：按一下走一步；按住 0.4 秒後每 0.08 秒連續走（X10）。heat-sim 只有單擊，連續的部分是這裡加的。
+// 用 pointerdown 而不是 click：click 要等放開才觸發，按住連續會多走一步。鍵盤（Enter／Space）走 click，detail 為 0
+{
+  let holdT = 0, repT = 0;
+  const stopHold = () => { clearTimeout(holdT); clearInterval(repT); holdT = repT = 0; };
+  const stepOnce = (d) => { setToneFreq(tone.f + d * toneStepOf(tone.f, d)); kick(); };
+  for (const b of document.querySelectorAll('#toneStep button[data-d]')){
+    const d = +b.dataset.d;
+    b.addEventListener('pointerdown', (e) => {
+      if (b.disabled) return;
+      e.preventDefault(); stepOnce(d);
+      holdT = setTimeout(() => { repT = setInterval(() => { if (b.disabled) stopHold(); else stepOnce(d); }, 80); }, 400);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => b.addEventListener(ev, stopHold));
+    b.addEventListener('click', (e) => { if (e.detail === 0 && !b.disabled) stepOnce(d); });
+  }
+}
+document.getElementById('tonePresets').addEventListener('click', (e) => {
+  const b = e.target.closest('.chip[data-f]'); if (!b) return;
+  setToneFreq(+b.dataset.f); kick();
+});
+document.getElementById('toneVol').addEventListener('input', (e) => { setToneVol(+e.target.value); kick(); });
+
+/* 小鍵盤（X4）：點步進器中間的數字打開。只收 1～22000 的整數；超出範圍時紅字說明、「確定」停用——
+   不是「警告＋允許」：瀏覽器本來就發不出 22000 以上（取樣率的一半），硬收進來只會變成沒聲音的錯誤狀態。
+   實體鍵盤也能用（數字、Backspace、Enter、Esc），老師接筆電時比較快 */
+const keypad = { el:document.getElementById('keypad'), s:'' };
+function kpRender(){
+  const n = +keypad.s;
+  document.getElementById('kpNum').textContent = keypad.s || '0';
+  const ok = keypad.s !== '' && n >= TONE_MIN && n <= TONE_MAX;
+  const msg = document.getElementById('kpMsg');
+  msg.textContent = keypad.s === '' ? `可輸入 ${TONE_MIN}～${TONE_MAX}` : ok ? `可輸入 ${TONE_MIN}～${TONE_MAX}` : `超出範圍：只能輸入 ${TONE_MIN}～${TONE_MAX}`;
+  msg.classList.toggle('bad', keypad.s !== '' && !ok);
+  document.getElementById('kpOk').disabled = !ok;
+}
+function kpOpen(){ keypad.s = String(tone.f); keypad.fresh = true; kpRender(); keypad.el.classList.add('open'); }
+function kpClose(){ keypad.el.classList.remove('open'); }
+function kpPress(k){
+  // 剛打開時第一個數字直接取代原值（像計算機），不用先按清除
+  if (/^\d$/.test(k)){ keypad.s = keypad.fresh ? (k === '0' ? '' : k) : (keypad.s + k).replace(/^0+/, '').slice(0, 5); }
+  else if (k === 'back') keypad.s = keypad.fresh ? '' : keypad.s.slice(0, -1);
+  else if (k === 'clear') keypad.s = '';
+  keypad.fresh = false;
+  kpRender();
+}
+function kpCommit(){
+  if (document.getElementById('kpOk').disabled) return;
+  setToneFreq(+keypad.s); kpClose(); kick();
+}
+document.getElementById('toneVal').addEventListener('click', kpOpen);
+document.getElementById('kpGrid').addEventListener('click', (e) => { const b = e.target.closest('button[data-k]'); if (b) kpPress(b.dataset.k); });
+document.getElementById('kpOk').addEventListener('click', kpCommit);
+document.getElementById('kpCancel').addEventListener('click', kpClose);
+keypad.el.addEventListener('click', (e) => { if (e.target === keypad.el) kpClose(); });   // 點外面的暗處＝取消
+document.addEventListener('keydown', (e) => {
+  if (!keypad.el.classList.contains('open')) return;
+  if (/^\d$/.test(e.key)) kpPress(e.key);
+  else if (e.key === 'Backspace') kpPress('back');
+  else if (e.key === 'Enter') kpCommit();
+  else if (e.key === 'Escape') kpClose();
+  else return;
+  e.preventDefault();
+});
 // 切模式：兩種模式不同時進行（接收時發聲會被自己的麥克風收到；發出時畫的是理想波形，不需要麥克風）
 function setMicMode(m){
   if (m === tone.mode) return;
   tone.mode = m;
   for (const b of document.querySelectorAll('#micMode button')) b.setAttribute('aria-pressed', String(b.dataset.mode === m));
   document.getElementById('toneBox').hidden = m !== 'tx';
+  document.getElementById('toneVolBox').hidden = m !== 'tx';
   document.getElementById('micGainBox').hidden = m !== 'rx';
   if (m === 'tx') stopMic(); else stopTone();
+  mic.est = null;
   idleMicHint();
+  updateMicCard();
   syncDrawer();
 }
 document.getElementById('micMode').addEventListener('click', e => {
   const b = e.target.closest('button[data-mode]'); if (!b) return;
-  // 點「發出聲音」本身就是手勢：趁這時建立音訊，才知道這台裝置的頻率上限
-  if (b.dataset.mode === 'tx' && ensureAudio()) syncToneMax();
   setMicMode(b.dataset.mode);
   kick();
 });
@@ -1653,7 +1883,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.addEventListener){
 const medium = (() => {
   /* ── 常數 ── */
   // 慢動作倍率（固定，不給學生調，§3.5 M30）：動畫 1 秒＝真實 1/400 秒；距離與波長照真實值，只有時間被拉慢。
-  // 選 400 的理由：340 Hz 時粒子每秒來回 0.85 次、節拍燈約 1.2 秒閃一次，看得出節奏；
+  // 選 400 的理由：340 Hz 時粒子每秒來回 0.85 次，看得出節奏；
   // 波從聲源走到 B 約 6.5 秒、下方圖一次掃描 4.8 秒——再慢（800 倍以上）就要等 13 秒才看到水中的波
   const SLOW = 400;
   const V_AIR = 331 + 0.6 * 20;    // 空氣用課本式 v = 331 + 0.6T，取 20 °C
@@ -1667,7 +1897,7 @@ const medium = (() => {
   const WIN = 0.012;               // 位移－時間圖的時間窗：真實 12 毫秒（340 Hz 約 4 個週期）
   const AMP_PX = 5;                // 粒子位移（px），小於粒子間距一半，粒子不會互相穿過
   const GAP_PX = 12;               // 空氣與水用同一個粒子間距：不讓「排得密」變成「傳得快」的暗示
-  const C_T = '#2A6FDB';           // 週期 T 的證據色：兩張圖的 T 括號、「週期相同」標籤同一個顏色（資訊卡的字色照 optics 用 --c-text，§3.8 V1）
+  const C_T = '#2A6FDB';           // 週期 T 的證據色：兩張圖的 T 括號（資訊卡的字色照 optics 用 --c-text，§3.8 V1；「週期相同」標籤已拿掉，§3.10 X12）
   const COL = { tracer:'#D64545', axis:'#7A8496', grid:'#D5DAE1', gridMain:'#A6AEBA' };
   const FILL = { air:'#FDFAF3', water:'#DBEAFE' }, DOT = { air:'#7A8496', water:'#2A6FDB' };
   // 預設只看粒子（M18）：先看粒子與 A、B 的節奏，再切疏密看波長，不一開場就把所有資訊疊在一起
@@ -1714,12 +1944,6 @@ const medium = (() => {
     const n = Math.floor((t - F.delay[i]) * F.fv - 0.25);
     return n >= 1 ? [peakT(i, n - 1), peakT(i, n)] : null;
   }
-  // 節拍燈亮度：每到波峰亮一下，週期的前 18% 內淡出
-  function lampLevel(i, t){
-    const tau = t - F.delay[i]; if (tau < 0.25 / F.fv) return 0;
-    const ph = ((tau * F.fv - 0.25) % 1 + 1) % 1;
-    return ph < 0.18 ? 1 - ph / 0.18 : 0;
-  }
 
   /* ── 繪圖小工具 ── */
   const font = (px, w) => `${w || 400} ${px}px ${FONT_STACK}`;
@@ -1763,7 +1987,7 @@ const medium = (() => {
   function layout(){
     const { W, H } = G;
     G.x0 = 56; G.x1 = W - 16; G.ppm = (G.x1 - G.x0) / L; G.xbp = G.x0 + XB * G.ppm;
-    // 管子頂端 56：上方只需放得下「介面」字樣（圓心 top−32）與探針字母、節拍燈（圓心 top−22、半徑 11）。
+    // 管子頂端 56：上方只需放得下「介面」字樣（圓心 top−32）與探針字母（圓心 top−22、半徑 11）。
     // 數據表拿掉之後（M26）不必再替它讓位，多出來的高度全給下方兩張圖。
     // 管高取畫布 24%（120～160 px），把空間留給下方兩張圖與兩張資訊卡
     G.top = 56; G.bot = G.top + Math.max(120, Math.min(160, H * 0.24));
@@ -1839,16 +2063,15 @@ const medium = (() => {
         ctx.beginPath(); ctx.moveTo(x, G.top - 10); ctx.lineTo(x, G.bot); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle = COL.tracer; ctx.beginPath(); ctx.arc(x + probeU(i, S.t) * AMP_PX, mid, 6.5, 0, 7); ctx.fill();
         badge(x, G.top - 22, i);
-        // 節拍燈不設開關，跟著顯示方式走（M29）：「疏密」時隱藏，讓注意力留在空間上的波長差異。
-        // 燈放在字母左側（B 可拖到最右邊，右側會出界）
-        if (S.view !== 'wave') lamp(x - 32, G.top - 22, lampLevel(i, S.t), 8);
-        // 手動模式：字母兩側加左右小三角，提示可以拖（燈往外讓到 −32，不與左三角重疊）
-        if (!S.autoProbe){
-          ctx.fillStyle = '#B42323';
-          [-1, 1].forEach((s) => { ctx.beginPath(); ctx.moveTo(x + s * 20, G.top - 22); ctx.lineTo(x + s * 14, G.top - 26); ctx.lineTo(x + s * 14, G.top - 18); ctx.closePath(); ctx.fill(); });
-        }
       });
     }
+    // 手動模式的拖曳握把（HTML，同 optics-sim 的 .draghint，§3.10 X6）：貼在管子下緣下方，握把本身也能拖。
+    // 節拍燈與字母兩側的小三角已移除（X1、X6）
+    ['medHintA', 'medHintB'].forEach((id, i) => {
+      const h = $(id);
+      h.hidden = !S.addProbe || S.autoProbe;
+      if (!h.hidden){ h.style.left = pxOf(i) * U + 'px'; h.style.top = (G.bot + 6) * U + 'px'; }
+    });
     // 波長尺（M9）：位置固定（左端＝探針位置，長度＝一個波長），不跟著波跑、不忽隱忽現。
     // 畫面證據：密部線每經過尺的左端一次，右端也剛好有一條密部線——兩端一起亮。
     // 聲波通過尺的右端之後才出現，出現後就一直留著。探針被拖到尺放不下的地方時，尺的左端夾在該介質範圍內。
@@ -1879,15 +2102,6 @@ const medium = (() => {
     ctx.fillStyle = '#B42323'; ctx.font = font(13, 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(i ? 'B' : 'A', x, y + 0.5); ctx.textAlign = 'left';
   }
-  // 節拍燈：暗時灰底，亮時黃色＋外圈光暈
-  function lamp(x, y, lv, r){
-    const { ctx } = G;
-    if (lv > 0){ ctx.fillStyle = `rgba(243,211,78,${0.35 * lv})`; ctx.beginPath(); ctx.arc(x, y, r + 6 * lv, 0, 7); ctx.fill(); }
-    ctx.fillStyle = lv > 0 ? `rgb(${Math.round(226 + 17 * lv)},${Math.round(229 - 18 * lv)},${Math.round(234 - 156 * lv)})` : '#E2E5EA';
-    ctx.strokeStyle = lv > 0 ? '#C7A82C' : '#8A93A1'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke();
-  }
-
   // 下方：兩張位移－時間圖上下疊放，共用同一條時間軸與同一條掃描線（示波器式由左往右掃，M4）
   function drawGraphs(){
     const { ctx } = G, Wa = WIN * SLOW, now = S.t, pw = G.gx1 - G.gx0, gap = Wa * 0.04;
@@ -1936,15 +2150,24 @@ const medium = (() => {
       for (let n = Math.max(0, n1 - 12); n <= n1; n++){ const t = peakT(i, n); if (visible(t)) pk.push(t); }
       ctx.fillStyle = '#1C2433';
       pk.forEach((t) => { ctx.beginPath(); ctx.arc(xOf(t), mid - probeU(i, t) * amp, 3.5, 0, 7); ctx.fill(); });
+      // 資訊卡蓋在圖內右端（X7），掃描線走到那一段時最新的週期在卡片底下：改標最近一個不被卡片擋住的週期，
+      // 掃描一整輪兩張圖都看得到 T（§3.11 Z4）。找不到（聲波剛到、只有卡片底下有完整週期）才退回標最新那個
+      const card = S.info ? $(i ? 'medCardB' : 'medCardA') : null;
+      const cardL = card && !card.hidden ? G.gx1 - 14 - card.offsetWidth / U - 4 : Infinity;
+      let kT = -1;
       for (let k = pk.length - 1; k >= 1; k--){
         const xa = xOf(pk[k - 1]), xb = xOf(pk[k]); if (xb <= xa) continue;
+        if (kT < 0) kT = k;
+        if (xb <= cardL){ kT = k; break; }
+      }
+      if (kT >= 1){
+        const k = kT, xa = xOf(pk[k - 1]), xb = xOf(pk[k]);
         const by = y0 + 12;
         ctx.strokeStyle = C_T; ctx.lineWidth = 3; ctx.beginPath();
         ctx.moveTo(xa, by + 6); ctx.lineTo(xa, by); ctx.lineTo(xb, by); ctx.lineTo(xb, by + 6); ctx.stroke();
         ctx.setLineDash([2, 3]); ctx.strokeStyle = 'rgba(42,111,219,.45)'; ctx.lineWidth = 1.5; ctx.beginPath();
         ctx.moveTo(xa, by + 6); ctx.lineTo(xa, mid - probeU(i, pk[k - 1]) * amp); ctx.moveTo(xb, by + 6); ctx.lineTo(xb, mid - probeU(i, pk[k]) * amp); ctx.stroke(); ctx.setLineDash([]);
         tag(ctx, 'T', (xa + xb) / 2, by, { size:14, align:'center', color:C_T });
-        break;
       }
     });
     if (!S.addProbe){
@@ -1956,43 +2179,33 @@ const medium = (() => {
     ctx.strokeStyle = '#445062'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx, gy[0] - 4); ctx.lineTo(sx, gy[1] + G.gh + 2); ctx.stroke();
   }
 
-  // 探針資訊卡（HTML）：只放 T，單位用毫秒——下方時間軸就是毫秒，可直接對格線（M21）。
-  // T 由最後兩個波峰的時間差量出來，不是抄設定值；兩邊都量到時才出現「週期相同 → 頻率相同（f）」，形成「圖 → T → f」。
+  // 探針資訊卡（HTML，§3.10 X5、X7、X12）：兩行「f＋T」「λ」，蓋在各自那張圖的右端、上下置中，寬度依文字。
+  // T 由最後兩個波峰的時間差量出來、f＝1/T，不是抄設定值（形成「圖 → T → f」，M21）；T 用毫秒——下方時間軸就是毫秒。
+  // λ 是該介質的聲速 ÷ 頻率（模型值），和疏密模式的波長尺同一個數。聲波還沒到探針時只寫「聲波還沒到」。
   // 文字沒變就不寫 DOM，避免每幀重排
-  const cardTxt = ['', '', ''];
+  const cardTxt = ['', ''];
   function updateCards(){
-    const pill = $('medPill');
     const show = S.addProbe && S.info;
-    let both = show, dt = 0;
     ['medCardA', 'medCardB'].forEach((id, i) => {
       const c = $(id);
       c.hidden = !show;
       if (!show) return;
-      const lp = lastPeaks(i, S.t);
-      if (!lp) both = false; else dt = (lp[1] - lp[0]) / SLOW;
-      const txt = lp ? `T = ${(dt * 1000).toFixed(2)} ms` : '聲波還沒到';
-      if (txt === cardTxt[i]) return;
-      cardTxt[i] = txt;
-      const v = c.querySelector('.g').children[1];
-      v.textContent = txt; v.className = lp ? 'pos' : 'etc';
+      const lp = lastPeaks(i, S.t), [r1, r2] = c.querySelector('.g').children;
+      const dt = lp ? (lp[1] - lp[0]) / SLOW : 0;
+      const txt = lp ? `f = ${Math.round(1 / dt)} Hz　T = ${(dt * 1000).toFixed(2)} ms|λ = ${(i ? F.lam2 : F.lam1).toFixed(2)} m` : '聲波還沒到';
+      if (txt !== cardTxt[i]){
+        cardTxt[i] = txt;
+        const [a, b] = txt.split('|');
+        r1.textContent = a; r1.className = lp ? 'pos' : 'etc';
+        r2.textContent = b || ''; r2.hidden = !lp;
+      }
+      // 右端內縮 14（同 optics 的 left:14px），用 right 定位：數字變長時右緣不動、往左長
+      c.style.left = 'auto';
+      c.style.right = (G.W - G.gx1 + 14) * U + 'px';
+      // 上下置中；矮螢幕（1280×720、U=1.15 時圖高約 84）放不下時貼近圖框，不凸出去蓋到紅圈字母或刻度
+      const h = c.offsetHeight / U;
+      c.style.top = Math.max(G.gy[i] + 2, G.gy[i] + (G.gh - h) / 2) * U + 'px';
     });
-    pill.hidden = !both;
-    if (!show) return;
-    // 位置：兩張卡貼著兩圖的交界，A 卡在上圖左下、B 卡在下圖左上（內縮同 optics 的 14／12），
-    // 中間夾著 B 的紅圈字母那一列；「週期相同」放在卡片右側、對準交界，三者讀成一組
-    const cA = $('medCardA'), cB = $('medCardB'), xL = G.gx0 + 14;
-    const hA = cA.offsetHeight / U, hB = cB.offsetHeight / U;
-    cA.style.left = cB.style.left = xL * U + 'px';
-    // 矮螢幕（1280×720、U=1.15 時圖高只剩約 84）內縮 12 放不下：卡片寧可貼近圖框，也不凸出去蓋到紅圈字母或刻度
-    cA.style.top = Math.max(G.gy[0] + 2, G.gy[0] + G.gh - 12 - hA) * U + 'px';
-    cB.style.top = Math.min(G.gy[1] + 12, G.gy[1] + G.gh - 2 - hB) * U + 'px';
-    if (both){
-      const txt = `週期相同 → 頻率相同<br>（${Math.round(1 / dt)} Hz）`;
-      if (txt !== cardTxt[2]){ cardTxt[2] = txt; pill.innerHTML = txt; }
-      const mid = (G.gy[0] + G.gh + G.gy[1]) / 2;
-      pill.style.left = (xL + cA.offsetWidth / U + 12) * U + 'px';
-      pill.style.top = (mid - pill.offsetHeight / U / 2) * U + 'px';
-    }
   }
 
   /* ── 互動（Pointer Events） ── */
@@ -2042,15 +2255,24 @@ const medium = (() => {
     if (i === undefined) return;
     drag = i; cv.setPointerCapture(e.pointerId);
   });
-  cv.addEventListener('pointermove', (e) => {
+  const moveDrag = (e) => {
     if (drag < 0) return;
     const [lo, hi] = PROBE_RANGE[drag];
     S.probe[drag] = Math.max(lo, Math.min(hi, (logical(e)[0] - G.x0) / G.ppm));
     updDelays(); kick();
-  });
+  };
   const endDrag = () => { drag = -1; };
+  cv.addEventListener('pointermove', moveDrag);
   cv.addEventListener('pointerup', endDrag);
   cv.addEventListener('pointercancel', endDrag);
+  // 握把也是拖曳把手（同 optics-sim）；只在手動模式出現，所以不必再檢查 autoProbe
+  ['medHintA', 'medHintB'].forEach((id, i) => {
+    const h = $(id);
+    h.addEventListener('pointerdown', (e) => { drag = i; h.setPointerCapture(e.pointerId); e.preventDefault(); });
+    h.addEventListener('pointermove', moveDrag);
+    h.addEventListener('pointerup', endDrag);
+    h.addEventListener('pointercancel', endDrag);
+  });
 
   // 重設全部（由共用的 resetAll() 呼叫）：參數與開關全部回初始值，並從頭播放
   function reset(){
@@ -2131,13 +2353,6 @@ const prop = (() => {
     const v = speed(), h = 0.01;
     return -(src(t - (rm + h) / v) - src(t - (rm - h) / v)) / (2 * h) / (2 * Math.PI * fv() / v);
   }
-  // 節拍燈（S5，同第 3 頁 lampLevel）：A 每到波峰亮一下，週期的前 18% 內淡出；真空或音量 0 時不亮
-  function lampLevel(){
-    if (silent() || !S.vol) return 0;
-    const f = fv(), tau = S.t - S.probe / speed(); if (tau < 0.25 / f) return 0;
-    const ph = ((tau * f - 0.25) % 1 + 1) % 1;
-    return ph < 0.18 ? 1 - ph / 0.18 : 0;
-  }
   // 改頻率、音量、介質、氣溫、空氣狀態＝換了聲源或傳播條件，從頭發（S3，同第 3 頁 M28）
   function restart(){ S.t = 0; }
 
@@ -2178,7 +2393,7 @@ const prop = (() => {
   }
   function layout(){
     const { W, H } = G;
-    // 左右邊界同第 3 頁。場景上方 56：放得下探針字母、節拍燈與距離標籤（圓心 top−22）。
+    // 左右邊界同第 3 頁。場景上方 56：放得下探針字母與距離標籤（圓心 top−22）。
     // 場景高取畫布 45%（200～420 px）：開放空間要看得出圓弧往上下擴散，比第 3 頁的管子高；其餘給下方一張圖
     G.x0 = 56; G.x1 = W - 16; G.ppm = (G.x1 - G.x0) / L;
     G.top = 56; G.bot = G.top + Math.max(200, Math.min(420, H * 0.45)); G.mid = (G.top + G.bot) / 2;
@@ -2221,10 +2436,11 @@ const prop = (() => {
     ctx.fillStyle = FILL[S.med]; ctx.fillRect(G.x0, G.top, G.x1 - G.x0, G.bot - G.top);
     // 疏密圓弧：圓心在喇叭口，顏色依該半徑處的疏密（密部深藍、疏部白，與第 3 頁疏密帶同色）。
     // 不乘 1/r（見本節開頭）；稀薄也不變淡，稀薄只靠粒子少、接收振幅小表達（§3.7 T8）；真空不畫任何向外傳播的波（P7）。
+    // 音量 0% 也不畫：喇叭不動、下方圖是平線，波前若照畫會和兩者矛盾（§3.11 Z2）；非零音量仍不用深淺表示振幅
     // 每幀只算「半徑 → 顏色」對照表（約 470 格），再照 layout() 算好的半徑索引填進半解析度像素緩衝、一次貼上。
-    // 前兩種畫法都會越傳越卡（PROJECT_PLAN §7「進行中」）：逐圈 arc＋stroke 的工作量隨波前半徑的平方長
+    // 前兩種畫法都會越傳越卡（PROJECT_PLAN_archive_202610.md「已完成（2026-10-02 20:08～21:20…）」）：逐圈 arc＋stroke 的工作量隨波前半徑的平方長
     //（1 秒 5.8 ms → 11 秒 42.5 ms）；放射狀漸層則是色標越多越慢（色標換成空函式 37.8 → 6.4 ms）
-    if (showW && !silent()){
+    if (showW && !silent() && S.vol > 0){
       const k = S.view === 'wave' ? 1 : 0.55;
       const { lut, px, idx } = FIELD;
       for (let n = 0; n < lut.length; n++){
@@ -2265,14 +2481,6 @@ const prop = (() => {
     ctx.fillStyle = '#B42323'; ctx.font = font(13, 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('A', x, y + 0.5); ctx.textAlign = 'left';
   }
-  // 節拍燈（逐字沿用第 3 頁 medium 的 lamp）：暗時灰底，亮時黃色＋外圈光暈
-  function lamp(x, y, lv, r){
-    const { ctx } = G;
-    if (lv > 0){ ctx.fillStyle = `rgba(243,211,78,${0.35 * lv})`; ctx.beginPath(); ctx.arc(x, y, r + 6 * lv, 0, 7); ctx.fill(); }
-    ctx.fillStyle = lv > 0 ? `rgb(${Math.round(226 + 17 * lv)},${Math.round(229 - 18 * lv)},${Math.round(234 - 156 * lv)})` : '#E2E5EA';
-    ctx.strokeStyle = lv > 0 ? '#C7A82C' : '#8A93A1'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke();
-  }
   // 探針：紅色虛線＋紅色追蹤粒子（在喇叭正前方，隨位移左右動）＋紅圈 A，與第 3 頁同一套造型
   function drawProbe(){
     const { ctx } = G, x = pxOf(), y = G.top - 22;
@@ -2280,11 +2488,9 @@ const prop = (() => {
     ctx.beginPath(); ctx.moveTo(x, G.top - 10); ctx.lineTo(x, G.bot); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = COL.tracer; ctx.beginPath(); ctx.arc(x + disp(S.probe, S.t) * AMP_PX, G.mid, 6.5, 0, 7); ctx.fill();
     badge(x, y);
-    // 節拍燈跟著顯示方式走（R5，同第 3 頁 M29）：「疏密」時隱藏。放在字母左側，左三角外
-    if (S.view !== 'wave') lamp(x - 32, y, lampLevel(), 8);
-    // 字母兩側的左右小三角：提示可以拖（同第 3 頁手動模式）
-    ctx.fillStyle = '#B42323';
-    [-1, 1].forEach((s) => { ctx.beginPath(); ctx.moveTo(x + s * 20, y); ctx.lineTo(x + s * 14, y - 4); ctx.lineTo(x + s * 14, y + 4); ctx.closePath(); ctx.fill(); });
+    // 拖曳握把（HTML，同 optics-sim 的 .draghint，§3.10 X6）：貼在場景下緣下方，握把本身也能拖。節拍燈與小三角已移除（X1）
+    const h = $('propHint');
+    h.style.left = x * U + 'px'; h.style.top = (G.bot + 6) * U + 'px';
     // 距離就地顯示（P9）：放右邊，靠近右緣放不下時改放左邊
     const txt = `距離 ${S.probe.toFixed(1)} m`;
     ctx.font = font(13, 700);
@@ -2373,14 +2579,21 @@ const prop = (() => {
     if (Math.abs(x - px) >= 22 || y < G.top - 36 || y > G.bot) return;
     grab = x - px; cv.setPointerCapture(e.pointerId);
   });
-  cv.addEventListener('pointermove', (e) => {
+  const moveDrag = (e) => {
     if (grab === null) return;
     S.probe = Math.max(R_MIN, Math.min(L, (logical(e)[0] - grab - G.x0) / G.ppm));
     kick();
-  });
+  };
   const endDrag = () => { grab = null; };
+  cv.addEventListener('pointermove', moveDrag);
   cv.addEventListener('pointerup', endDrag);
   cv.addEventListener('pointercancel', endDrag);
+  // 握把也是拖曳把手（同 optics-sim）：從握把中心起算，抓住時探針不跳
+  const hint = $('propHint');
+  hint.addEventListener('pointerdown', (e) => { if (!G) return; grab = logical(e)[0] - pxOf(); hint.setPointerCapture(e.pointerId); e.preventDefault(); });
+  hint.addEventListener('pointermove', moveDrag);
+  hint.addEventListener('pointerup', endDrag);
+  hint.addEventListener('pointercancel', endDrag);
 
   // 重設全部（由共用的 resetAll() 呼叫）：回 340 Hz／60%／空氣／20 °C／正常／6 m／疏密，從頭發
   function reset(){
